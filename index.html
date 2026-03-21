@@ -808,5 +808,24 @@ function init(){
 }
 init();
 </script>
+  <script>
+document.querySelectorAll('.nb').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.getAttribute('data-page');
+
+    document.querySelectorAll('.page').forEach(p => {
+      p.classList.remove('active');
+    });
+
+    document.getElementById(target).classList.add('active');
+
+    document.querySelectorAll('.nb').forEach(b => {
+      b.classList.remove('active');
+    });
+
+    btn.classList.add('active');
+  });
+});
+</script>
 </body>
 </html>
