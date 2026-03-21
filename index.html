@@ -121,8 +121,8 @@
     <input id="email" type="email" placeholder="Email" />
     <input id="password" type="password" placeholder="Password" />
 
-    <button id="mainAuthBtn">Login</button>
-    <button class="secondary" id="switchBtn">Need an account? Sign Up</button>
+    <button id="mainAuthBtn" onclick="handleAuth()">Login</button>
+    <button class="secondary" id="switchBtn" onclick="switchMode()">Need an account? Sign Up</button>
 
     <div id="authMessage" class="small" style="margin-top:12px;"></div>
   </div>
@@ -206,9 +206,6 @@
 
     let authMode = "login";
 
-    const mainBtn = document.getElementById("mainAuthBtn");
-    const switchBtn = document.getElementById("switchBtn");
-
     function setAuthMessage(msg, isError = false) {
       const el = document.getElementById("authMessage");
       el.textContent = msg;
@@ -217,6 +214,8 @@
 
     function switchMode() {
       const title = document.getElementById("authTitle");
+      const mainBtn = document.getElementById("mainAuthBtn");
+      const switchBtn = document.getElementById("switchBtn");
 
       if (authMode === "login") {
         authMode = "signup";
@@ -233,15 +232,13 @@
       setAuthMessage("");
     }
 
-    mainBtn.addEventListener("click", async () => {
+    async function handleAuth() {
       if (authMode === "login") {
         await login();
       } else {
         await signup();
       }
-    });
-
-    switchBtn.addEventListener("click", switchMode);
+    }
 
     async function signup() {
       const email = document.getElementById("email").value.trim();
