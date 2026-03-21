@@ -1,1331 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="FitTrack Pro" />
-<meta name="theme-color" content="#0b1020" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FitTrack Pro</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{
-  --bg:#0b1020;
-  --bg2:#11182d;
-  --bg3:#18223d;
-  --card:#141d34;
-  --card2:#0f172c;
-  --border:rgba(255,255,255,.08);
-  --text:#eef3ff;
-  --muted:#9ba8c7;
-  --blue:#4ea1ff;
-  --blue2:#7bb7ff;
-  --green:#22c55e;
-  --amber:#f59e0b;
-  --red:#ef4444;
-  --purple:#8b5cf6;
-  --safe-top:env(safe-area-inset-top, 24px);
-  --safe-bottom:env(safe-area-inset-bottom, 18px);
-  --nav-h:78px;
-  --radius:18px;
-  --shadow:0 12px 30px rgba(0,0,0,.28);
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:linear-gradient(180deg,#09101d 0%, #0b1020 35%, #0b1020 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-body{overflow:hidden}
-button,input,select{font:inherit}
-.hidden{display:none!important}
-
-#app{
-  height:100%;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  padding:calc(var(--safe-top) + 8px) 0 calc(var(--safe-bottom) + var(--nav-h) + 14px);
-}
-.page{display:none;animation:fade .18s ease}
+body{margin:0;background:#0a0a0f;color:white;font-family:Arial}
+.page{display:none;padding:20px}
 .page.active{display:block}
-@keyframes fade{from{opacity:.55;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.topbar{
-  position:sticky;top:0;z-index:20;
-  padding:14px 18px 12px;
-  background:linear-gradient(180deg,rgba(11,16,32,.95),rgba(11,16,32,.82));
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(255,255,255,.04);
-}
-.topbar h1{margin:0;font-size:30px;line-height:1;font-weight:900;letter-spacing:.3px}
-.topbar .sub{margin-top:5px;color:var(--muted);font-size:13px}
-
-.section-title{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:4px 18px 10px;margin-top:6px;
-  font-size:21px;font-weight:900;letter-spacing:.2px
-}
-.section-title small{font-size:13px;color:var(--blue);font-weight:700}
-
-.wrap{padding:0 16px}
-.card{
-  background:linear-gradient(180deg,var(--card),var(--card2));
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-}
-.hero{
-  margin:0 16px 14px;padding:18px;
-  border-radius:24px;
-  background:
-    radial-gradient(circle at top right, rgba(78,161,255,.26), transparent 34%),
-    linear-gradient(180deg,#132142,#0f1832);
-  border:1px solid rgba(78,161,255,.2);
-  box-shadow:var(--shadow);
-}
-.hero .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--blue2);font-weight:800}
-.hero h2{margin:8px 0 4px;font-size:34px;line-height:1;font-weight:1000}
-.hero .desc{font-size:14px;color:#c6d6ff}
-.hero .stats{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap}
-.hero .stat{font-size:13px;color:var(--muted)}
-.hero .stat strong{color:var(--text)}
-.cta-row{display:flex;gap:10px;margin-top:16px}
-.btn{
-  border:none;border-radius:14px;padding:14px 16px;font-weight:900;cursor:pointer
-}
-.btn-primary{background:linear-gradient(180deg,var(--blue),#2a81f2);color:white;box-shadow:0 10px 22px rgba(78,161,255,.28)}
-.btn-soft{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
-.btn-danger{background:linear-gradient(180deg,#ff5b5b,#df3a3a);color:white}
-.btn-green{background:linear-gradient(180deg,#32d875,#18b24f);color:white}
-.btn-block{display:block;width:100%}
-
-.mission{
-  margin:0 16px 14px;padding:16px 16px 14px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px
-}
-.mission .left .kicker{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--amber);font-weight:900}
-.mission .left .title{font-size:24px;font-weight:1000;line-height:1.05;margin-top:4px}
-.mission .left .sub{font-size:13px;color:var(--muted);margin-top:4px}
-.streak{
-  min-width:92px;border-radius:16px;padding:10px 12px;text-align:center;
-  background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.18)
-}
-.streak .n{font-size:28px;line-height:1;font-weight:1000;color:var(--amber)}
-.streak .l{font-size:11px;color:#ffdca1;text-transform:uppercase;letter-spacing:.7px}
-
-.stats-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px;margin-bottom:14px
-}
-.mini{
-  padding:14px 10px;text-align:center
-}
-.mini .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
-.mini .val{margin-top:6px;font-size:24px;font-weight:1000;line-height:1}
-.mini .hint{margin-top:5px;color:var(--muted);font-size:11px}
-
-.progress-card{margin:0 16px 14px;padding:16px}
-.bar{height:10px;border-radius:999px;background:#0d1430;overflow:hidden;border:1px solid rgba(255,255,255,.05)}
-.fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:999px;transition:width .25s ease}
-.bar-row{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:13px;color:var(--muted)}
-.bar-row strong{color:var(--text)}
-
-.exercise-list{padding:0 16px}
-.phase{display:flex;align-items:center;gap:10px;padding:6px 18px 8px}
-.phase .dot{width:7px;height:7px;border-radius:50%}
-.phase .name{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.9px;font-weight:800}
-.phase .line{height:1px;flex:1;background:rgba(255,255,255,.08)}
-
-.ex{
-  display:flex;gap:14px;align-items:flex-start;
-  margin-bottom:9px;padding:14px 14px 14px 12px;
-  border-radius:16px;border:1px solid var(--border);
-  background:linear-gradient(180deg,#161f38,#121a31);
-  transition:transform .15s ease, opacity .15s ease, border-color .15s ease
-}
-.ex.done{opacity:.62;border-color:rgba(34,197,94,.25)}
-.ex:active{transform:scale(.995)}
-.chk{
-  width:28px;height:28px;border-radius:50%;
-  border:2px solid rgba(255,255,255,.15);
-  display:flex;align-items:center;justify-content:center;flex:none;
-  margin-top:1px
-}
-.ex.done .chk{background:var(--green);border-color:var(--green)}
-.chk svg{opacity:0;transform:scale(.7);transition:all .15s ease}
-.ex.done .chk svg{opacity:1;transform:scale(1)}
-.ex .name{font-size:18px;font-weight:1000;line-height:1.15}
-.ex .detail{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
-.ex .tip{font-size:11px;color:#7f8eb2;margin-top:6px;font-style:italic;line-height:1.45}
-.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.tag{font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px}
-.sets{background:rgba(78,161,255,.14);color:var(--blue2)}
-.rest{background:rgba(255,255,255,.08);color:#c9d4ef}
-.type-w{background:rgba(245,158,11,.14);color:#ffd18a}
-.type-c{background:rgba(34,197,94,.14);color:#9af0be}
-.type-s{background:rgba(139,92,246,.14);color:#d1b8ff}
-
-.day-scroll{
-  display:flex;gap:8px;padding:0 16px 14px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch
-}
-.day-scroll::-webkit-scrollbar{display:none}
-.day-pill{
-  min-width:66px;padding:10px 14px;border-radius:14px;text-align:center;
-  background:linear-gradient(180deg,#161f38,#121a31);border:1px solid var(--border);cursor:pointer
-}
-.day-pill.active{background:linear-gradient(180deg,var(--blue),#2a81f2);border-color:rgba(255,255,255,.1)}
-.day-pill .d1{font-size:15px;font-weight:1000;line-height:1}
-.day-pill .d2{font-size:10px;color:var(--muted);margin-top:3px}
-.day-pill.active .d2{color:rgba(255,255,255,.85)}
-
-.macro-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-bottom:12px}
-.metric{padding:14px}
-.metric .k{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
-.metric .v{margin-top:8px;font-size:30px;font-weight:1000;line-height:1}
-.metric .s{margin-top:4px;font-size:12px;color:var(--muted)}
-.metric .track{margin-top:12px}
-.metric .track .bar{height:8px}
-.meal{padding:14px 16px;margin:0 16px 8px}
-.meal .time{font-size:11px;color:var(--blue);font-weight:900;text-transform:uppercase;letter-spacing:.8px}
-.meal .title{font-size:18px;font-weight:1000;margin-top:4px}
-.meal .desc{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
-.meal .meta{font-size:12px;color:var(--green);font-weight:800;margin-top:6px}
-.meal .donebtn{margin-top:10px}
-
-.log-input{display:flex;gap:10px;align-items:center;padding:0 16px 12px}
-.input{
-  flex:1;background:linear-gradient(180deg,#161f38,#121a31);color:var(--text);
-  border:1px solid var(--border);border-radius:14px;padding:14px 16px;outline:none;
-  font-size:18px
-}
-.input.big{font-size:28px;font-weight:1000;text-align:center}
-.input:focus{border-color:rgba(78,161,255,.35)}
-.history{margin:0 16px}
-.row{
-  display:flex;justify-content:space-between;align-items:center;gap:10px;
-  padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07)
-}
-.row:last-child{border-bottom:none}
-.small{font-size:12px;color:var(--muted)}
-.kg{font-size:22px;font-weight:1000}
-.good{color:var(--green)} .bad{color:var(--red)}
-.chart{
-  margin:0 16px 12px;padding:16px
-}
-.chart svg{width:100%;height:180px;display:block}
-.chart .axis text,.chart .axis{fill:#7f8eb2;color:#7f8eb2;font-size:10px}
-.chart line{stroke:rgba(255,255,255,.08)}
-.chart .line{fill:none;stroke:var(--blue);stroke-width:3}
-.chart .dot{fill:#fff;stroke:var(--blue);stroke-width:3}
-.achievements{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 12px}
-.badge-card{padding:14px;text-align:left}
-.badge-card .icon{font-size:24px}
-.badge-card .title{font-size:15px;font-weight:1000;margin-top:8px}
-.badge-card .text{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
-
-.profile-hero{
-  margin:0 16px 14px;padding:18px;display:flex;align-items:center;gap:14px
-}
-.avatar{
-  width:62px;height:62px;border-radius:50%;
-  background:linear-gradient(180deg,var(--blue),#2a81f2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:26px;font-weight:1000;color:white;flex:none
-}
-.profile-hero .name{font-size:24px;font-weight:1000;line-height:1}
-.profile-hero .mail{font-size:13px;color:var(--muted);margin-top:5px}
-.form-card{margin:0 16px 12px;padding:16px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
-.helper{font-size:12px;color:var(--muted);line-height:1.45}
-.stack{display:flex;flex-direction:column;gap:12px}
-
-.nav{
-  position:fixed;left:0;right:0;bottom:0;z-index:30;
-  height:calc(var(--nav-h) + var(--safe-bottom));
-  padding:8px 8px var(--safe-bottom);
-  display:flex;align-items:flex-start;gap:6px;
-  background:rgba(10,16,31,.94);backdrop-filter:blur(14px);
-  border-top:1px solid rgba(255,255,255,.06)
-}
-.navbtn{
-  flex:1;min-height:54px;border-radius:16px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-  color:#9fb0d4;cursor:pointer;transition:all .15s ease
-}
-.navbtn.active{background:rgba(78,161,255,.12);color:var(--blue)}
-.navbtn svg{width:22px;height:22px}
-.navbtn span{font-size:10px;font-weight:800;letter-spacing:.4px}
-
-.install-banner{
-  display:none;position:fixed;left:14px;right:14px;top:calc(var(--safe-top) + 10px);z-index:40;
-  background:linear-gradient(180deg,var(--blue),#2a81f2);color:white;padding:12px 14px;border-radius:16px;
-  box-shadow:var(--shadow);align-items:center;gap:12px
-}
-.install-banner.show{display:flex}
-.install-banner .txt{flex:1;font-size:13px;line-height:1.35}
-.install-banner .txt strong{display:block;font-size:14px}
-.install-banner .x{font-size:20px;opacity:.85;cursor:pointer;padding:2px 6px}
-
-.auth-page{
-  min-height:calc(100vh - 110px);
-  display:flex;flex-direction:column;justify-content:center;padding:28px 16px 12px
-}
-.auth-card{padding:22px}
-.auth-title{font-size:34px;font-weight:1000;line-height:1}
-.auth-sub{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.5}
-.auth-switch{margin-top:14px;font-size:13px;color:var(--muted)}
-.auth-switch span{color:var(--blue);font-weight:800;cursor:pointer}
-.notice{margin:12px 16px 0;padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.4;background:rgba(255,255,255,.05);border:1px solid var(--border);color:#d5def4}
-
-.overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:50;
-  display:none;align-items:center;justify-content:center;padding:22px
-}
-.overlay.show{display:flex}
-.modal{
-  width:min(420px,100%);padding:22px;text-align:center
-}
-.modal .emoji{font-size:56px}
-.modal .title{font-size:34px;font-weight:1000;line-height:1.05;margin-top:8px}
-.modal .text{font-size:14px;color:var(--muted);margin-top:10px;line-height:1.5}
-.modal .stats{display:flex;justify-content:center;gap:26px;margin-top:18px}
-.modal .stats .n{font-size:34px;font-weight:1000;color:var(--green);line-height:1}
-.modal .stats .l{font-size:11px;color:var(--muted);margin-top:4px}
-
-.empty{margin:0 16px;padding:18px;text-align:center}
-.empty .title{font-size:18px;font-weight:1000}
-.empty .text{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.45}
-
-@media (max-width:380px){
-  .stats-grid{grid-template-columns:1fr}
-  .macro-grid,.grid2,.achievements{grid-template-columns:1fr}
-}
+.card{background:#1a1a25;padding:15px;border-radius:10px;margin-bottom:10px;cursor:pointer}
+.nav{position:fixed;bottom:0;width:100%;display:flex;background:#111}
+.nb{flex:1;text-align:center;padding:15px;color:#aaa;cursor:pointer}
+.nb.active{color:#4ea1ff}
+button{padding:10px;margin-top:10px;width:100%;background:#4ea1ff;border:none;color:white;border-radius:8px}
+input{width:100%;padding:10px;margin-top:10px;border-radius:8px;border:none}
 </style>
 </head>
+
 <body>
 
-<div id="installBanner" class="install-banner">
-  <div class="txt"><strong>Add to Home Screen</strong>Open Share → Add to Home Screen for the best app experience.</div>
-  <div class="x" onclick="closeInstallBanner()">✕</div>
+<!-- LOGIN -->
+<div id="login" class="page active">
+<h2>Login</h2>
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="signup()">Sign Up</button>
+<button onclick="login()">Login</button>
 </div>
 
-<div id="authPage" class="auth-page page active">
-  <div class="auth-card card">
-    <div class="auth-title" id="authTitle">Welcome Back</div>
-    <div class="auth-sub">This is a local profile login for your device. Your workouts, progress, and weight logs stay saved on this phone.</div>
-    <div class="stack" style="margin-top:18px">
-      <div>
-        <div class="label">Name</div>
-        <input id="authName" class="input" placeholder="Your name" />
-      </div>
-      <div>
-        <div class="label">Email</div>
-        <input id="authEmail" class="input" placeholder="you@example.com" />
-      </div>
-      <div>
-        <div class="label">Password</div>
-        <input id="authPassword" class="input" type="password" placeholder="Create or enter password" />
-      </div>
-    </div>
-    <button id="authSubmit" class="btn btn-primary btn-block" style="margin-top:16px" onclick="submitAuth()">Sign In</button>
-    <div class="auth-switch" id="authSwitch">New here? <span onclick="toggleAuthMode()">Create local account</span></div>
-  </div>
-  <div class="notice">Real multi-device email login needs a backend like Supabase or Firebase. This version is single-file and saves everything locally on your device.</div>
+<!-- APP -->
+<div id="app" class="page">
+
+<div id="workout">
+<h2>Workout</h2>
+
+<div class="card" onclick="toggleDone('bench')">
+Bench Press ✔️
 </div>
 
-<div id="mainApp" class="hidden">
-  <div id="app">
-
-    <section id="page-today" class="page active">
-      <div class="topbar">
-        <h1 style="color:var(--blue)">TODAY</h1>
-        <div class="sub" id="todayDate">Loading...</div>
-      </div>
-
-      <div class="mission card">
-        <div class="left">
-          <div class="kicker">Today’s Mission</div>
-          <div class="title" id="todayMissionTitle">Push Day</div>
-          <div class="sub" id="todayMissionSub">Week 1 · Foundation</div>
-        </div>
-        <div class="streak">
-          <div class="n" id="streakCount">0</div>
-          <div class="l">Day Streak</div>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="mini card">
-          <div class="lbl">Week</div>
-          <div class="val" id="miniWeek">1</div>
-          <div class="hint">Current phase</div>
-        </div>
-        <div class="mini card">
-          <div class="lbl">Duration</div>
-          <div class="val" id="miniDuration">75m</div>
-          <div class="hint">Estimated</div>
-        </div>
-        <div class="mini card">
-          <div class="lbl">Calories</div>
-          <div class="val" id="miniCalories">500</div>
-          <div class="hint">Burn range</div>
-        </div>
-      </div>
-
-      <div class="progress-card card">
-        <div class="bar-row">
-          <span id="todayProgressLabel">0 of 0 exercises</span>
-          <strong id="todayProgressPct">0%</strong>
-        </div>
-        <div class="bar"><div id="todayProgressBar" class="fill"></div></div>
-        <div class="cta-row">
-          <button class="btn btn-primary" onclick="scrollToWorkout()">▶ Start Workout</button>
-          <button class="btn btn-soft" onclick="goPage('program')">View Program</button>
-        </div>
-      </div>
-
-      <div class="section-title">
-        Workout
-        <small id="todayWorkoutSmall">Tap any exercise to mark it done</small>
-      </div>
-      <div id="todayWorkout"></div>
-    </section>
-
-    <section id="page-program" class="page">
-      <div class="topbar">
-        <h1>PROGRAM</h1>
-        <div class="sub">20-week plan · tap a day · today auto-highlighted</div>
-      </div>
-
-      <div class="day-scroll" id="programDays"></div>
-
-      <div class="hero" id="programHero">
-        <div class="eyebrow">Week 1</div>
-        <h2>Push Day</h2>
-        <div class="desc">Chest · Shoulders · Triceps</div>
-        <div class="stats">
-          <div class="stat"><strong>75 min</strong> duration</div>
-          <div class="stat"><strong>420–520 kcal</strong> est. burn</div>
-          <div class="stat"><strong id="programStatus">Not completed</strong></div>
-        </div>
-      </div>
-
-      <div id="programBody"></div>
-    </section>
-
-    <section id="page-nutrition" class="page">
-      <div class="topbar">
-        <h1 style="color:var(--amber)">NUTRITION</h1>
-        <div class="sub">Daily targets · check meals · macro progress</div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="mini card">
-          <div class="lbl">Calories Left</div>
-          <div class="val" id="calLeft">2500</div>
-          <div class="hint">kcal remaining</div>
-        </div>
-        <div class="mini card">
-          <div class="lbl">Protein Left</div>
-          <div class="val" id="proteinLeft">190</div>
-          <div class="hint">grams remaining</div>
-        </div>
-        <div class="mini card">
-          <div class="lbl">Meals Done</div>
-          <div class="val" id="mealsDone">0</div>
-          <div class="hint">today completed</div>
-        </div>
-      </div>
-
-      <div class="macro-grid">
-        <div class="metric card">
-          <div class="k">Calories</div>
-          <div class="v" style="color:var(--amber)"><span id="calCurrent">0</span>/<span>2500</span></div>
-          <div class="s">Daily target</div>
-          <div class="track"><div class="bar"><div id="calBar" class="fill" style="background:linear-gradient(90deg,var(--amber),var(--red))"></div></div></div>
-        </div>
-        <div class="metric card">
-          <div class="k">Protein</div>
-          <div class="v" style="color:var(--blue)"><span id="proteinCurrent">0</span>/<span>190</span></div>
-          <div class="s">Grams target</div>
-          <div class="track"><div class="bar"><div id="proteinBar" class="fill"></div></div></div>
-        </div>
-        <div class="metric card">
-          <div class="k">Carbs</div>
-          <div class="v" style="color:var(--green)"><span id="carbCurrent">0</span>/<span>240</span></div>
-          <div class="s">Workout fuel</div>
-        </div>
-        <div class="metric card">
-          <div class="k">Fats</div>
-          <div class="v" style="color:var(--purple)"><span id="fatCurrent">0</span>/<span>72</span></div>
-          <div class="s">Healthy sources</div>
-        </div>
-      </div>
-
-      <div class="section-title">Meal Plan <small>Tap to mark complete</small></div>
-      <div id="nutritionMeals"></div>
-
-      <div class="section-title">Supplements</div>
-      <div class="form-card card">
-        <div class="stack">
-          <div>
-            <div class="label" style="color:var(--blue)">Creatine Monohydrate</div>
-            <div class="helper">5g daily, any time. Best supplement for strength and muscle retention.</div>
-          </div>
-          <div>
-            <div class="label" style="color:var(--blue)">Whey Protein</div>
-            <div class="helper">Use 1–2 scoops only if you struggle to hit protein from food.</div>
-          </div>
-          <div>
-            <div class="label" style="color:var(--blue)">Magnesium Glycinate</div>
-            <div class="helper">300–400mg before bed for better sleep and recovery.</div>
-          </div>
-          <div>
-            <div class="label" style="color:var(--blue)">Omega-3</div>
-            <div class="helper">Supports joints, inflammation control, and heart health.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="page-progress" class="page">
-      <div class="topbar">
-        <h1 style="color:var(--green)">PROGRESS</h1>
-        <div class="sub">Reward center · weight graph · achievements</div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="mini card">
-          <div class="lbl">Start</div>
-          <div class="val" id="startWeightBox">112</div>
-          <div class="hint">kg</div>
-        </div>
-        <div class="mini card">
-          <div class="lbl">Current</div>
-          <div class="val" id="currentWeightBox">112</div>
-          <div class="hint">kg</div>
-        </div>
-        <div class="mini card">
-          <div class="lbl">Target</div>
-          <div class="val" id="targetWeightBox">93</div>
-          <div class="hint">kg</div>
-        </div>
-      </div>
-
-      <div class="progress-card card">
-        <div class="bar-row">
-          <span>Journey to goal</span>
-          <strong id="goalPct">0%</strong>
-        </div>
-        <div class="bar"><div id="goalBar" class="fill"></div></div>
-        <div class="small" style="margin-top:8px" id="goalText">0 kg lost</div>
-      </div>
-
-      <div class="achievements">
-        <div class="badge-card card">
-          <div class="icon">🔥</div>
-          <div class="title" id="achStreakTitle">0-Day Streak</div>
-          <div class="text">Consistency is your superpower.</div>
-        </div>
-        <div class="badge-card card">
-          <div class="icon">💪</div>
-          <div class="title" id="achWorkoutTitle">0 Workouts Done</div>
-          <div class="text">Every completed session counts.</div>
-        </div>
-        <div class="badge-card card">
-          <div class="icon">⚖️</div>
-          <div class="title" id="achWeightTitle">No Weight Change Yet</div>
-          <div class="text">Start logging to see your graph come alive.</div>
-        </div>
-        <div class="badge-card card">
-          <div class="icon">🏆</div>
-          <div class="title" id="achPhaseTitle">Week 1</div>
-          <div class="text" id="achPhaseText">Foundation phase started.</div>
-        </div>
-      </div>
-
-      <div class="section-title">Log Weight</div>
-      <div class="log-input">
-        <input id="weightInput" class="input big" type="number" step="0.1" placeholder="111.5" inputmode="decimal" />
-        <button class="btn btn-primary" onclick="logWeight()">Log</button>
-      </div>
-
-      <div id="weightChartWrap" class="chart card hidden">
-        <svg id="weightChartSvg" viewBox="0 0 320 180" preserveAspectRatio="none"></svg>
-      </div>
-
-      <div class="section-title">Weight History <small id="weightCount"></small></div>
-      <div id="weightHistory" class="form-card card"></div>
-    </section>
-
-    <section id="page-profile" class="page">
-      <div class="topbar">
-        <h1>PROFILE</h1>
-        <div class="sub">Identity · settings · app data</div>
-      </div>
-
-      <div class="profile-hero card">
-        <div class="avatar" id="profileAvatar">W</div>
-        <div>
-          <div class="name" id="profileNameHero">Wassim</div>
-          <div class="mail" id="profileEmailHero">you@example.com</div>
-        </div>
-      </div>
-
-      <div class="form-card card">
-        <div class="stack">
-          <div>
-            <div class="label">Name</div>
-            <input id="profileName" class="input" />
-          </div>
-          <div>
-            <div class="label">Email</div>
-            <input id="profileEmail" class="input" />
-          </div>
-          <div class="grid2">
-            <div>
-              <div class="label">Age</div>
-              <input id="profileAge" class="input" type="number" />
-            </div>
-            <div>
-              <div class="label">Height (cm)</div>
-              <input id="profileHeight" class="input" type="number" />
-            </div>
-          </div>
-          <div class="grid2">
-            <div>
-              <div class="label">Start Weight (kg)</div>
-              <input id="profileStartWeight" class="input" type="number" step="0.1" />
-            </div>
-            <div>
-              <div class="label">Target Weight (kg)</div>
-              <input id="profileTargetWeight" class="input" type="number" step="0.1" />
-            </div>
-          </div>
-          <div class="grid2">
-            <div>
-              <div class="label">Current Weight (kg)</div>
-              <input id="profileCurrentWeight" class="input" type="number" step="0.1" />
-            </div>
-            <div>
-              <div class="label">Training Days / Week</div>
-              <input id="profileTrainingDays" class="input" type="number" />
-            </div>
-          </div>
-          <button class="btn btn-primary btn-block" onclick="saveProfile()">Save Profile</button>
-        </div>
-      </div>
-
-      <div class="form-card card">
-        <div class="stack">
-          <div>
-            <div class="label">Install Like an App</div>
-            <div class="helper">Open Safari → Share → Add to Home Screen. This gives you the best iPhone app-like experience.</div>
-          </div>
-          <button class="btn btn-soft btn-block" onclick="showInstallBanner()">Show Install Tip</button>
-          <button class="btn btn-danger btn-block" onclick="signOut()">Sign Out</button>
-          <button class="btn btn-soft btn-block" onclick="resetAllData()">Reset All App Data</button>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <nav class="nav">
-    <div class="navbtn active" id="nav-today" onclick="goPage('today')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 10l9-7 9 7"></path><path d="M5 9.8V20h14V9.8"></path></svg>
-      <span>TODAY</span>
-    </div>
-    <div class="navbtn" id="nav-program" onclick="goPage('program')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="3" y="4" width="18" height="17" rx="2"></rect><path d="M8 2v4M16 2v4M3 10h18"></path></svg>
-      <span>PROGRAM</span>
-    </div>
-    <div class="navbtn" id="nav-nutrition" onclick="goPage('nutrition')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M7 3v7M11 3v7M9 10v11"></path><path d="M17 3c-1.8 1.2-2.8 3.3-2.8 5.5V21"></path></svg>
-      <span>NUTRITION</span>
-    </div>
-    <div class="navbtn" id="nav-progress" onclick="goPage('progress')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M5 19V9M12 19V5M19 19v-8"></path></svg>
-      <span>PROGRESS</span>
-    </div>
-    <div class="navbtn" id="nav-profile" onclick="goPage('profile')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c1.8-4 5-6 8-6s6.2 2 8 6"></path></svg>
-      <span>PROFILE</span>
-    </div>
-  </nav>
+<div class="card" onclick="toggleDone('incline')">
+Incline Press ✔️
 </div>
 
-<div id="doneOverlay" class="overlay">
-  <div class="modal card">
-    <div class="emoji">🔥</div>
-    <div class="title">Workout<br>Complete</div>
-    <div class="text">Great job. Every completed day moves you closer to your goal.</div>
-    <div class="stats">
-      <div><div class="n" id="doneExercises">0</div><div class="l">Exercises</div></div>
-      <div><div class="n" id="doneCalories">0</div><div class="l">kcal est.</div></div>
-    </div>
-    <button class="btn btn-green btn-block" onclick="closeDone()">Keep Going 💪</button>
-  </div>
+</div>
+
+<div id="tracker" style="display:none">
+<h2>Tracker</h2>
+<input id="weight" placeholder="Enter weight">
+<button onclick="saveWeight()">Save</button>
+<div id="history"></div>
+</div>
+
+</div>
+
+<!-- NAV -->
+<div class="nav">
+<div class="nb active" onclick="showPage('workout', this)">Workout</div>
+<div class="nb" onclick="showPage('tracker', this)">Tracker</div>
 </div>
 
 <script>
-const APP_KEY = "fittrack_pro_final_v1";
-let authMode = "signin";
-let appData = {
-  auth: null,
-  profile: {
-    name: "Wassim",
-    email: "you@example.com",
-    password: "",
-    age: 33,
-    height: 192,
-    startWeight: 112,
-    currentWeight: 112,
-    targetWeight: 93,
-    trainingDays: 5
-  },
-  progress: {
-    startDate: null,
-    streak: 0,
-    lastWorkoutDate: null
-  },
-  workouts: {},
-  meals: {},
-  weightLog: []
-};
 
-const DAYS = [
-  {
-    key:"mon", label:"Mon", title:"Push Day", subtitle:"Chest · Shoulders · Triceps", duration:"75 min", calories:"420–520",
-    sections:[
-      {name:"Warm-Up", color:"#f59e0b", type:"warm", exercises:[
-        {id:"walk", name:"Treadmill / Brisk Walk", detail:"5 min · HR 120–130 bpm", tip:"Talk test: you should still speak in short sentences.", sets:"5 min", rest:0},
-        {id:"arm", name:"Arm Circles + Shoulder Rolls", detail:"20 reps each direction", tip:"Full smooth circles, not rushed reps.", sets:"2 × 20", rest:0},
-        {id:"band", name:"Band Pull-Aparts", detail:"Rear delt activation and chest opening", tip:"Squeeze shoulder blades together at the end.", sets:"2 × 15", rest:30},
-        {id:"pushup", name:"Push-Up Progression", detail:"Elevated to flat", tip:"Hands on bench if flat push-ups are still hard.", sets:"2 × 10", rest:30}
-      ]},
-      {name:"Main Strength", color:"#4ea1ff", type:"strength", exercises:[
-        {id:"bench", name:"Bench Press", detail:"Primary chest compound", tip:"Control the lowering phase for 2–3 seconds.", sets:"4 × 8–12", rest:90},
-        {id:"incline", name:"Incline Dumbbell Press", detail:"Upper chest + anterior delt", tip:"Keep elbows at 45 degrees, not flared out.", sets:"3 × 10–12", rest:75},
-        {id:"press", name:"Seated Shoulder Press", detail:"Dumbbell shoulder compound", tip:"Keep tension on shoulders. Avoid locking out hard.", sets:"3 × 10–12", rest:75},
-        {id:"latraise", name:"Cable Lateral Raises", detail:"Side delt width builder", tip:"Lead with elbow, not wrist. Light weight, strict form.", sets:"3 × 15", rest:60},
-        {id:"tri1", name:"Tricep Rope Pushdowns", detail:"Primary tricep isolation", tip:"Flare wrists at the bottom for a better contraction.", sets:"3 × 12–15", rest:60},
-        {id:"tri2", name:"Overhead Tricep Extension", detail:"Long head emphasis", tip:"Full stretch at the top. Elbows stay close.", sets:"3 × 12", rest:60}
-      ]},
-      {name:"Cardio Finisher", color:"#22c55e", type:"cardio", exercises:[
-        {id:"bike", name:"Steady Cardio Bike / Elliptical", detail:"20 min · HR 130–150 bpm", tip:"This is where you build extra fat-loss momentum.", sets:"20 min", rest:0}
-      ]}
-    ]
-  },
-  {
-    key:"tue", label:"Tue", title:"Pull Day", subtitle:"Back · Biceps · Rear Delts", duration:"75 min", calories:"400–500",
-    sections:[
-      {name:"Warm-Up", color:"#f59e0b", type:"warm", exercises:[
-        {id:"row", name:"Rowing Machine or Bike", detail:"5 min easy pace", tip:"Ideal to wake up lats and upper back.", sets:"5 min", rest:0},
-        {id:"catcow", name:"Cat-Cow + Thoracic Rotation", detail:"10 reps", tip:"Move slowly. Thoracic mobility matters for rows.", sets:"2 × 10", rest:0},
-        {id:"facepullwarm", name:"Band Face-Pulls", detail:"External rotation warm-up", tip:"Pull to your nose with elbows high.", sets:"2 × 15", rest:30}
-      ]},
-      {name:"Main Strength", color:"#4ea1ff", type:"strength", exercises:[
-        {id:"latpull", name:"Lat Pulldown (Wide Grip)", detail:"Back width builder", tip:"Pull to upper chest with slight lean back.", sets:"4 × 10–12", rest:90},
-        {id:"seatedrow", name:"Seated Cable Row", detail:"Back thickness", tip:"Drive elbows back, not down.", sets:"4 × 10–12", rest:90},
-        {id:"dbrow", name:"Single-Arm Dumbbell Row", detail:"Unilateral symmetry work", tip:"Use full stretch and full squeeze every rep.", sets:"3 × 12 each", rest:75},
-        {id:"facepull", name:"Face Pulls", detail:"Rear delt + shoulder health", tip:"External rotate at the top.", sets:"3 × 15", rest:60},
-        {id:"curl", name:"Barbell Bicep Curl", detail:"Primary bicep builder", tip:"Elbows pinned to sides. No swinging.", sets:"3 × 10–12", rest:60},
-        {id:"hammer", name:"Hammer Curl", detail:"Arm thickness from all angles", tip:"Control the lowering phase.", sets:"3 × 12", rest:60}
-      ]}
-    ]
-  },
-  {
-    key:"wed", label:"Wed", title:"Cardio & Core", subtitle:"Conditioning · Core strength", duration:"60 min", calories:"500–650",
-    sections:[
-      {name:"Cardio Block", color:"#22c55e", type:"cardio", exercises:[
-        {id:"zone2", name:"Steady-State Cardio", detail:"35 min · HR 122–141 bpm", tip:"Main fat-burning session. Never skip Wednesday.", sets:"35 min", rest:0}
-      ]},
-      {name:"Core Circuit", color:"#4ea1ff", type:"strength", exercises:[
-        {id:"plank", name:"Plank Hold", detail:"Full body tension", tip:"Keep a straight line from shoulders to ankles.", sets:"3 × 30–45s", rest:30},
-        {id:"deadbug", name:"Dead Bug", detail:"Core stability", tip:"Lower back stays pressed into the floor.", sets:"3 × 10 each", rest:30},
-        {id:"pallof", name:"Pallof Press", detail:"Anti-rotation core", tip:"Press out and resist twisting.", sets:"3 × 10 each", rest:30},
-        {id:"knees", name:"Hanging Knee Raises", detail:"Lower abs", tip:"No swinging. Controlled motion only.", sets:"3 × 12–15", rest:45}
-      ]}
-    ]
-  },
-  {
-    key:"thu", label:"Thu", title:"Leg Day", subtitle:"Quads · Hamstrings · Glutes · Calves", duration:"80 min", calories:"550–700",
-    sections:[
-      {name:"Warm-Up", color:"#f59e0b", type:"warm", exercises:[
-        {id:"bikewarm", name:"Stationary Bike", detail:"8 min easy", tip:"Gets blood into quads and knees before loading.", sets:"8 min", rest:0},
-        {id:"squatpause", name:"Bodyweight Squats with Pause", detail:"10 reps · 3 sec pause", tip:"Use a heel wedge if needed for better depth.", sets:"2 × 10", rest:0},
-        {id:"bands", name:"Hip Circle Bands", detail:"Glute activation", tip:"Small movement, big benefit. Do not rush.", sets:"2 × 15", rest:0}
-      ]},
-      {name:"Main Strength", color:"#4ea1ff", type:"strength", exercises:[
-        {id:"squat", name:"Back Squat / Goblet Squat", detail:"Main leg compound", tip:"Master depth and bracing before chasing weight.", sets:"4 × 8–10", rest:120},
-        {id:"rdl", name:"Romanian Deadlift", detail:"Hamstrings + glute hinge", tip:"Hip hinge, not squat. Feel the stretch.", sets:"4 × 10", rest:90},
-        {id:"legpress", name:"Leg Press", detail:"Quad focus", tip:"Full ROM. Do not lock knees hard.", sets:"3 × 12", rest:90},
-        {id:"lunges", name:"Walking Lunges", detail:"Unilateral leg work", tip:"Take long controlled steps.", sets:"3 × 10 each", rest:75},
-        {id:"legcurl", name:"Leg Curl", detail:"Hamstring isolation", tip:"Pause briefly at the contraction.", sets:"3 × 12", rest:60},
-        {id:"calves", name:"Standing Calf Raise", detail:"Full range, high reps", tip:"All the way up, all the way down.", sets:"4 × 20", rest:45}
-      ]}
-    ]
-  },
-  {
-    key:"fri", label:"Fri", title:"Full Body Power", subtitle:"Compound lifts · Functional conditioning", duration:"70 min", calories:"500–600",
-    sections:[
-      {name:"Warm-Up", color:"#f59e0b", type:"warm", exercises:[
-        {id:"jump", name:"Jump Rope or Jumping Jacks", detail:"4 min activation", tip:"If knees feel sensitive, do marching high knees.", sets:"4 min", rest:0},
-        {id:"greatest", name:"World’s Greatest Stretch", detail:"Dynamic full-body prep", tip:"One of the best warm-ups you can do.", sets:"2 × 5 each", rest:0}
-      ]},
-      {name:"Main Compound Block", color:"#4ea1ff", type:"strength", exercises:[
-        {id:"deadlift", name:"Deadlift (Trap Bar Preferred)", detail:"Complete strength lift", tip:"Brace hard before every rep.", sets:"4 × 6–8", rest:120},
-        {id:"dip", name:"Weighted Dip or Push-Up", detail:"Chest + tricep compound", tip:"Use assistance if dips are too hard.", sets:"3 × 8–10", rest:90},
-        {id:"pullup", name:"Pull-Up / Assisted / Pulldown", detail:"Upper body king", tip:"Work toward full unassisted reps over time.", sets:"3 × max", rest:90},
-        {id:"farmer", name:"Farmer Walk", detail:"Grip + trunk + conditioning", tip:"Heavy but controlled. Stand tall.", sets:"4 × 30m", rest:60}
-      ]},
-      {name:"Conditioning", color:"#22c55e", type:"cardio", exercises:[
-        {id:"complex", name:"KB Swing + Box Step-Up + Bike Sprint", detail:"3 rounds", tip:"High effort but clean form. Rest 90 seconds between rounds.", sets:"3 rounds", rest:90}
-      ]}
-    ]
-  },
-  { key:"sat", label:"Sat", title:"Active Recovery", rest:true, subtitle:"Movement · Walk · Mobility", duration:"40 min", calories:"150–250" },
-  { key:"sun", label:"Sun", title:"Full Rest Day", rest:true, subtitle:"Sleep · Nutrition · Adaptation", duration:"Rest", calories:"—" }
-];
+// ✅ YOUR SUPABASE CONNECTION
+const supabase = window.supabase.createClient(
+"https://hcgdvkztosxlpzoyabmc.supabase.co",
+"sb_publishable_E-OglMzuyvUeXsfCPUOBnQ_fGuO1dJP"
+)
 
-const MEALS = [
-  {id:"breakfast", time:"Breakfast 7–8am", title:"Power Breakfast", desc:"4 scrambled eggs + 2 slices whole grain toast + 1 banana", calories:550, protein:35, carbs:45, fats:20},
-  {id:"pre", time:"Pre-Workout", title:"Pre-Training Fuel", desc:"Greek yoghurt 200g + oats + honey", calories:350, protein:20, carbs:40, fats:8},
-  {id:"post", time:"Post-Workout / Lunch", title:"Recovery Meal", desc:"200g grilled chicken or beef + 1 cup rice + large salad", calories:700, protein:50, carbs:70, fats:16},
-  {id:"afternoon", time:"Afternoon", title:"Afternoon Boost", desc:"100g cottage cheese or labneh + cucumber + 30g almonds", calories:300, protein:20, carbs:10, fats:18},
-  {id:"dinner", time:"Dinner", title:"Evening Rebuild", desc:"200g salmon or lean beef + roasted vegetables + sweet potato", calories:650, protein:45, carbs:55, fats:22},
-  {id:"optional", time:"Optional Evening", title:"Protein / Casein", desc:"1 scoop whey or 200g low-fat yoghurt", calories:200, protein:25, carbs:8, fats:4}
-];
-
-function defaultData() {
-  return JSON.parse(JSON.stringify(appData));
-}
-function saveData() {
-  localStorage.setItem(APP_KEY, JSON.stringify(appData));
-}
-function loadData() {
-  const raw = localStorage.getItem(APP_KEY);
-  if (raw) {
-    try { appData = JSON.parse(raw); }
-    catch(e) { appData = defaultData(); }
-  } else {
-    appData.progress.startDate = todayKey();
-    saveData();
-  }
-  if (!appData.progress.startDate) appData.progress.startDate = todayKey();
-  if (!appData.workouts) appData.workouts = {};
-  if (!appData.meals) appData.meals = {};
-  if (!appData.weightLog) appData.weightLog = [];
-}
-function todayKey() {
-  return new Date().toISOString().split("T")[0];
-}
-function todayIdx() {
-  const d = new Date().getDay();
-  return d === 0 ? 6 : d - 1;
-}
-function currentWeek() {
-  const start = new Date(appData.progress.startDate + "T00:00:00");
-  const diff = Math.floor((Date.now() - start.getTime()) / 86400000);
-  return Math.max(1, Math.min(20, Math.floor(diff / 7) + 1));
-}
-function phaseName(week) {
-  if (week <= 6) return "Phase 1 · Foundation";
-  if (week <= 14) return "Phase 2 · Hypertrophy";
-  return "Phase 3 · Strength";
-}
-function longDate() {
-  return new Date().toLocaleDateString("en-GB",{ weekday:"long", day:"numeric", month:"long", year:"numeric" });
-}
-function initials(name) {
-  return (name || "U").split(" ").filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join("");
-}
-function workoutKey(dayKey) {
-  return `${todayKey()}__${dayKey}`;
-}
-function getDayProgress(dayIndex) {
-  const day = DAYS[dayIndex];
-  if (day.rest) return { done:0, total:0, pct:0 };
-  const wk = workoutKey(day.key);
-  const store = appData.workouts[wk] || {};
-  let total = 0, done = 0;
-  day.sections.forEach(sec => sec.exercises.forEach(ex => {
-    total++;
-    if (store[ex.id]?.done) done++;
-  }));
-  return { done, total, pct: total ? Math.round(done/total*100) : 0 };
-}
-function countAllCompletedWorkouts() {
-  let c = 0;
-  Object.keys(appData.workouts).forEach(k => {
-    const dayKey = k.split("__")[1];
-    const di = DAYS.findIndex(d => d.key === dayKey);
-    if (di < 0 || DAYS[di].rest) return;
-    const prog = getSpecificDayProgress(di, k);
-    if (prog.total && prog.done === prog.total) c++;
-  });
-  return c;
-}
-function getSpecificDayProgress(dayIndex, key) {
-  const day = DAYS[dayIndex];
-  const store = appData.workouts[key] || {};
-  let total = 0, done = 0;
-  day.sections.forEach(sec => sec.exercises.forEach(ex => {
-    total++;
-    if (store[ex.id]?.done) done++;
-  }));
-  return {done,total,pct: total ? Math.round(done/total*100) : 0};
-}
-function sameDate(a,b){ return a===b; }
-function yesterdayKey() {
-  const d = new Date();
-  d.setDate(d.getDate()-1);
-  return d.toISOString().split("T")[0];
+// ================= LOGIN =================
+async function signup(){
+await supabase.auth.signUp({
+email:email.value,
+password:password.value
+})
+alert("Check your email 📩")
 }
 
-function toggleAuthMode() {
-  authMode = authMode === "signin" ? "signup" : "signin";
-  document.getElementById("authTitle").textContent = authMode === "signin" ? "Welcome Back" : "Create Local Account";
-  document.getElementById("authSubmit").textContent = authMode === "signin" ? "Sign In" : "Create Account";
-  document.getElementById("authSwitch").innerHTML = authMode === "signin"
-    ? 'New here? <span onclick="toggleAuthMode()">Create local account</span>'
-    : 'Already have one? <span onclick="toggleAuthMode()">Sign in</span>';
+async function login(){
+const {data,error} = await supabase.auth.signInWithPassword({
+email:email.value,
+password:password.value
+})
+
+if(error){
+alert(error.message)
+}else{
+document.getElementById("login").classList.remove("active")
+document.getElementById("app").classList.add("active")
+loadWeights()
 }
-function submitAuth() {
-  const name = document.getElementById("authName").value.trim() || "User";
-  const email = document.getElementById("authEmail").value.trim();
-  const password = document.getElementById("authPassword").value;
-  if (!email || !password) {
-    alert("Please enter email and password.");
-    return;
-  }
-  loadData();
-  if (authMode === "signup") {
-    appData.auth = { email };
-    appData.profile.name = name;
-    appData.profile.email = email;
-    appData.profile.password = password;
-    if (!appData.progress.startDate) appData.progress.startDate = todayKey();
-    saveData();
-    openApp();
-    return;
-  }
-  if (appData.profile.email === email && appData.profile.password === password) {
-    appData.auth = { email };
-    saveData();
-    openApp();
-  } else {
-    alert("Email or password is incorrect for this local profile.");
-  }
-}
-function signOut() {
-  appData.auth = null;
-  saveData();
-  document.getElementById("mainApp").classList.add("hidden");
-  document.getElementById("authPage").classList.add("active");
-  document.getElementById("authPage").classList.remove("hidden");
-}
-function openApp() {
-  document.getElementById("authPage").classList.remove("active");
-  document.getElementById("authPage").classList.add("hidden");
-  document.getElementById("mainApp").classList.remove("hidden");
-  renderAll();
-}
-function maybeOpenApp() {
-  loadData();
-  if (appData.auth?.email) {
-    openApp();
-  } else {
-    document.getElementById("authName").value = appData.profile.name || "";
-    document.getElementById("authEmail").value = appData.profile.email || "";
-  }
 }
 
-function goPage(page) {
-  ["today","program","nutrition","progress","profile"].forEach(p => {
-    document.getElementById("page-"+p).classList.toggle("active", p === page);
-    document.getElementById("nav-"+p).classList.toggle("active", p === page);
-  });
-  if (page === "program") renderProgram();
-  if (page === "nutrition") renderNutrition();
-  if (page === "progress") renderProgress();
-  if (page === "profile") renderProfile();
-  document.getElementById("app").scrollTop = 0;
-}
-function scrollToWorkout() {
-  const target = document.getElementById("todayWorkout");
-  if (target) target.scrollIntoView({behavior:"smooth", block:"start"});
+// ================= NAV =================
+function showPage(page, el){
+document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'))
+el.classList.add('active')
+
+document.getElementById("workout").style.display="none"
+document.getElementById("tracker").style.display="none"
+
+document.getElementById(page).style.display="block"
 }
 
-function exerciseHtml(dayIndex, sec, ex) {
-  const d = DAYS[dayIndex];
-  const wk = workoutKey(d.key);
-  const done = !!(appData.workouts[wk] && appData.workouts[wk][ex.id]?.done);
-  const typeClass = sec.type === "warm" ? "type-w" : sec.type === "cardio" ? "type-c" : "type-s";
-  return `
-    <div class="ex ${done ? "done" : ""}" onclick="toggleExercise(${dayIndex},'${ex.id}')">
-      <div class="chk">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div class="name">${ex.name}</div>
-        <div class="detail">${ex.detail}</div>
-        <div class="tip">${ex.tip}</div>
-        <div class="tags">
-          <span class="tag sets">${ex.sets}</span>
-          ${ex.rest ? `<span class="tag rest">Rest ${ex.rest}s</span>` : ""}
-          <span class="tag ${typeClass}">${sec.name.split(" ")[0]}</span>
-        </div>
-      </div>
-    </div>
-  `;
-}
-function renderToday() {
-  const di = todayIdx();
-  const day = DAYS[di];
-  document.getElementById("todayDate").textContent = longDate();
-  document.getElementById("todayMissionTitle").textContent = day.title;
-  document.getElementById("todayMissionSub").textContent = `Week ${currentWeek()} · ${phaseName(currentWeek())}`;
-  document.getElementById("streakCount").textContent = appData.progress.streak || 0;
-  document.getElementById("miniWeek").textContent = currentWeek();
-  document.getElementById("miniDuration").textContent = day.duration;
-  document.getElementById("miniCalories").textContent = day.calories.replace("–","-");
+// ================= WORKOUT SAVE =================
+async function toggleDone(name){
+const { data } = await supabase.auth.getUser()
 
-  if (day.rest) {
-    document.getElementById("todayWorkoutSmall").textContent = day.subtitle;
-    document.getElementById("todayWorkout").innerHTML = `
-      <div class="hero">
-        <div class="eyebrow">${day.label}</div>
-        <h2>${day.title}</h2>
-        <div class="desc">${day.subtitle}</div>
-        <div class="stats"><div class="stat"><strong>${day.duration}</strong></div></div>
-      </div>
-      <div class="empty card">
-        <div class="title">${day.key === "sat" ? "Move lightly today 💚" : "Recover hard today 😴"}</div>
-        <div class="text">${day.key === "sat" ? "Go for a walk, do mobility, and stay active without adding fatigue." : "Sleep well, hydrate, eat properly, and let your body adapt."}</div>
-      </div>`;
-    document.getElementById("todayProgressLabel").textContent = "Recovery day";
-    document.getElementById("todayProgressPct").textContent = "—";
-    document.getElementById("todayProgressBar").style.width = "0%";
-    return;
-  }
+await supabase.from("workouts").insert({
+user_id:data.user.id,
+exercise:name,
+done:true
+})
 
-  const prog = getDayProgress(di);
-  document.getElementById("todayProgressLabel").textContent = `${prog.done} of ${prog.total} exercises`;
-  document.getElementById("todayProgressPct").textContent = `${prog.pct}%`;
-  document.getElementById("todayProgressBar").style.width = `${prog.pct}%`;
-  document.getElementById("todayWorkoutSmall").textContent = prog.done === prog.total && prog.total > 0
-    ? "Workout complete ✔"
-    : "Tap any exercise to mark it done";
-
-  let html = "";
-  day.sections.forEach(sec => {
-    html += `<div class="phase"><div class="dot" style="background:${sec.color}"></div><div class="name">${sec.name}</div><div class="line"></div></div>`;
-    html += `<div class="exercise-list">`;
-    sec.exercises.forEach(ex => { html += exerciseHtml(di, sec, ex); });
-    html += `</div>`;
-  });
-  document.getElementById("todayWorkout").innerHTML = html;
-}
-function toggleExercise(dayIndex, exId) {
-  const day = DAYS[dayIndex];
-  if (day.rest) return;
-  const wk = workoutKey(day.key);
-  if (!appData.workouts[wk]) appData.workouts[wk] = {};
-  const cur = !!appData.workouts[wk][exId]?.done;
-  appData.workouts[wk][exId] = { done: !cur, updatedAt: Date.now() };
-
-  const prog = getDayProgress(dayIndex);
-  const isCompleting = !cur && prog.done + 1 === prog.total;
-
-  if (!cur) {
-    updateStreakForToday();
-  }
-
-  saveData();
-  renderToday();
-  renderProgram();
-  renderProgress();
-
-  if (isCompleting) {
-    const calories = day.calories.includes("–")
-      ? Math.round((parseInt(day.calories.split("–")[0]) + parseInt(day.calories.split("–")[1])) / 2)
-      : day.calories;
-    document.getElementById("doneExercises").textContent = prog.total;
-    document.getElementById("doneCalories").textContent = calories;
-    document.getElementById("doneOverlay").classList.add("show");
-  }
-}
-function closeDone() {
-  document.getElementById("doneOverlay").classList.remove("show");
-}
-function updateStreakForToday() {
-  const t = todayKey();
-  const y = yesterdayKey();
-  const last = appData.progress.lastWorkoutDate;
-  if (sameDate(last, t)) return;
-  if (sameDate(last, y)) appData.progress.streak += 1;
-  else appData.progress.streak = 1;
-  appData.progress.lastWorkoutDate = t;
+alert("Saved ✔️")
 }
 
-let selectedProgramDay = null;
-function renderProgram() {
-  if (selectedProgramDay == null) selectedProgramDay = todayIdx();
-  const daysWrap = document.getElementById("programDays");
-  daysWrap.innerHTML = DAYS.map((d,i)=>`
-    <div class="day-pill ${i===selectedProgramDay?'active':''}" onclick="selectProgramDay(${i})">
-      <div class="d1">${d.label}</div>
-      <div class="d2">${d.title.split(" ")[0]}</div>
-    </div>
-  `).join("");
+// ================= WEIGHT SAVE =================
+async function saveWeight(){
+const { data } = await supabase.auth.getUser()
 
-  const day = DAYS[selectedProgramDay];
-  const hero = document.getElementById("programHero");
-  const status = day.rest ? "Recovery / Rest" : (() => {
-    const key = workoutKey(day.key);
-    const p = getSpecificDayProgress(selectedProgramDay, key);
-    return p.total && p.done === p.total ? "Completed ✔" : `${p.done}/${p.total} done`;
-  })();
-  hero.innerHTML = `
-    <div class="eyebrow">Week ${currentWeek()} · ${phaseName(currentWeek())}</div>
-    <h2>${day.title}</h2>
-    <div class="desc">${day.subtitle}</div>
-    <div class="stats">
-      <div class="stat"><strong>${day.duration}</strong> duration</div>
-      <div class="stat"><strong>${day.calories}</strong> est. burn</div>
-      <div class="stat"><strong>${status}</strong></div>
-    </div>`;
+await supabase.from("weights").insert({
+user_id:data.user.id,
+weight:weight.value
+})
 
-  if (day.rest) {
-    document.getElementById("programBody").innerHTML = `
-      <div class="empty card">
-        <div class="title">${day.title}</div>
-        <div class="text">${day.key === "sat" ? "Use this day for light movement, walking, and recovery." : "This is your full rest day. Sleep, hydrate, and prep for the next week."}</div>
-      </div>`;
-    return;
-  }
-
-  let html = "";
-  day.sections.forEach(sec => {
-    html += `<div class="phase"><div class="dot" style="background:${sec.color}"></div><div class="name">${sec.name}</div><div class="line"></div></div>`;
-    html += `<div class="exercise-list">`;
-    sec.exercises.forEach(ex => { html += exerciseHtml(selectedProgramDay, sec, ex); });
-    html += `</div>`;
-  });
-  document.getElementById("programBody").innerHTML = html;
-}
-function selectProgramDay(i) {
-  selectedProgramDay = i;
-  renderProgram();
+loadWeights()
 }
 
-function mealKey(id) { return `${todayKey()}__${id}`; }
-function toggleMeal(id) {
-  const key = mealKey(id);
-  appData.meals[key] = !appData.meals[key];
-  saveData();
-  renderNutrition();
-}
-function renderNutrition() {
-  let calories = 0, protein = 0, carbs = 0, fats = 0, doneMeals = 0;
-  const mealsHtml = MEALS.map(m => {
-    const done = !!appData.meals[mealKey(m.id)];
-    if (done) {
-      calories += m.calories; protein += m.protein; carbs += m.carbs; fats += m.fats; doneMeals++;
-    }
-    return `
-      <div class="meal card ${done ? 'done' : ''}">
-        <div class="time">${m.time}</div>
-        <div class="title">${m.title}</div>
-        <div class="desc">${m.desc}</div>
-        <div class="meta">~${m.calories} kcal · ${m.protein}g protein</div>
-        <button class="btn ${done ? 'btn-green' : 'btn-soft'} donebtn" onclick="toggleMeal('${m.id}')">${done ? 'Meal Completed ✔' : 'Mark Meal Done'}</button>
-      </div>`;
-  }).join("");
-  document.getElementById("nutritionMeals").innerHTML = mealsHtml;
+// ================= LOAD DATA =================
+async function loadWeights(){
+const { data: userData } = await supabase.auth.getUser()
 
-  const calTarget = 2500, proteinTarget = 190, carbTarget = 240, fatTarget = 72;
-  document.getElementById("calCurrent").textContent = calories;
-  document.getElementById("proteinCurrent").textContent = protein;
-  document.getElementById("carbCurrent").textContent = carbs;
-  document.getElementById("fatCurrent").textContent = fats;
-  document.getElementById("calLeft").textContent = Math.max(0, calTarget - calories);
-  document.getElementById("proteinLeft").textContent = Math.max(0, proteinTarget - protein);
-  document.getElementById("mealsDone").textContent = doneMeals;
-  document.getElementById("calBar").style.width = `${Math.min(100, (calories / calTarget) * 100)}%`;
-  document.getElementById("proteinBar").style.width = `${Math.min(100, (protein / proteinTarget) * 100)}%`;
+const { data } = await supabase
+.from("weights")
+.select("*")
+.eq("user_id",userData.user.id)
+.order("id",{ascending:false})
+
+history.innerHTML = data.map(d=>`<div>${d.weight} kg</div>`).join("")
 }
 
-function logWeight() {
-  const input = document.getElementById("weightInput");
-  const val = parseFloat(input.value);
-  if (!val || val < 40 || val > 250) {
-    alert("Enter a valid weight.");
-    return;
-  }
-  const key = todayKey();
-  appData.weightLog = appData.weightLog.filter(x => x.date !== key);
-  appData.weightLog.unshift({ date:key, weight:val });
-  appData.weightLog.sort((a,b)=> b.date.localeCompare(a.date));
-  appData.profile.currentWeight = val;
-  input.value = "";
-  saveData();
-  renderProgress();
-  renderProfile();
-}
-function deleteWeight(date) {
-  appData.weightLog = appData.weightLog.filter(x => x.date !== date);
-  if (appData.weightLog.length) appData.profile.currentWeight = appData.weightLog[0].weight;
-  saveData();
-  renderProgress();
-}
-function renderProgress() {
-  const p = appData.profile;
-  document.getElementById("startWeightBox").textContent = p.startWeight;
-  document.getElementById("currentWeightBox").textContent = p.currentWeight;
-  document.getElementById("targetWeightBox").textContent = p.targetWeight;
-
-  const totalNeeded = p.startWeight - p.targetWeight;
-  const lost = Math.max(0, p.startWeight - p.currentWeight);
-  const pct = totalNeeded > 0 ? Math.min(100, Math.round((lost / totalNeeded) * 100)) : 0;
-  document.getElementById("goalPct").textContent = `${pct}%`;
-  document.getElementById("goalBar").style.width = `${pct}%`;
-  document.getElementById("goalText").textContent = `${lost.toFixed(1)} kg lost`;
-
-  document.getElementById("achStreakTitle").textContent = `${appData.progress.streak || 0}-Day Streak`;
-  document.getElementById("achWorkoutTitle").textContent = `${countAllCompletedWorkouts()} Workouts Done`;
-  document.getElementById("achWeightTitle").textContent = lost > 0 ? `${lost.toFixed(1)} kg Down` : "No Weight Change Yet";
-  document.getElementById("achPhaseTitle").textContent = `Week ${currentWeek()}`;
-  document.getElementById("achPhaseText").textContent = phaseName(currentWeek());
-
-  const countEl = document.getElementById("weightCount");
-  countEl.textContent = appData.weightLog.length ? `${appData.weightLog.length} entries` : "";
-
-  const historyWrap = document.getElementById("weightHistory");
-  if (!appData.weightLog.length) {
-    historyWrap.innerHTML = `<div class="empty"><div class="title">Start logging today 💪</div><div class="text">Your journey begins now. One entry is enough to start building momentum.</div></div>`;
-    document.getElementById("weightChartWrap").classList.add("hidden");
-  } else {
-    historyWrap.innerHTML = appData.weightLog.slice(0,12).map((w,i) => {
-      const prev = appData.weightLog[i+1];
-      let diffHtml = `<span class="small">first entry</span>`;
-      if (prev) {
-        const diff = +(w.weight - prev.weight).toFixed(1);
-        diffHtml = `<span class="${diff <= 0 ? 'good' : 'bad'}">${diff > 0 ? '+' : ''}${diff} kg</span>`;
-      }
-      return `
-        <div class="row">
-          <div>
-            <div class="small">${new Date(w.date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
-            <div class="kg">${w.weight} <span class="small">kg</span></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            ${diffHtml}
-            <button class="btn btn-soft" style="padding:10px 12px" onclick="deleteWeight('${w.date}')">Delete</button>
-          </div>
-        </div>`;
-    }).join("");
-    renderWeightChart();
-  }
-}
-function renderWeightChart() {
-  const wrap = document.getElementById("weightChartWrap");
-  const svg = document.getElementById("weightChartSvg");
-  const data = [...appData.weightLog].slice(0,10).reverse();
-  if (data.length < 2) {
-    wrap.classList.add("hidden");
-    return;
-  }
-  wrap.classList.remove("hidden");
-  const W=320,H=180,pad=20,left=22,bottom=22;
-  const vals = data.map(d=>d.weight);
-  const min = Math.min(...vals) - 0.5;
-  const max = Math.max(...vals) + 0.5;
-  const range = Math.max(1, max - min);
-  const xStep = (W-left-pad)/(data.length-1);
-  const y = v => (H-bottom) - ((v-min)/range)*(H-pad-bottom);
-  const x = i => left + i*xStep;
-  let points = data.map((d,i)=>`${x(i)},${y(d.weight)}`).join(" ");
-  let grid = "";
-  for(let i=0;i<4;i++){
-    const gy = pad + i*((H-pad-bottom)/3);
-    grid += `<line x1="${left}" y1="${gy}" x2="${W-pad}" y2="${gy}" />`;
-  }
-  let dots = data.map((d,i)=>`<circle class="dot" cx="${x(i)}" cy="${y(d.weight)}" r="4" /><text x="${x(i)}" y="${H-6}" text-anchor="middle" class="axis">${new Date(d.date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</text>`).join("");
-  svg.innerHTML = `
-    <g>${grid}</g>
-    <polyline class="line" points="${points}" />
-    ${dots}
-    <text x="4" y="${pad+4}" class="axis">${max.toFixed(1)}</text>
-    <text x="4" y="${H-bottom}" class="axis">${min.toFixed(1)}</text>
-  `;
-}
-
-function renderProfile() {
-  const p = appData.profile;
-  document.getElementById("profileAvatar").textContent = initials(p.name);
-  document.getElementById("profileNameHero").textContent = p.name;
-  document.getElementById("profileEmailHero").textContent = p.email;
-  document.getElementById("profileName").value = p.name || "";
-  document.getElementById("profileEmail").value = p.email || "";
-  document.getElementById("profileAge").value = p.age ?? "";
-  document.getElementById("profileHeight").value = p.height ?? "";
-  document.getElementById("profileStartWeight").value = p.startWeight ?? "";
-  document.getElementById("profileCurrentWeight").value = p.currentWeight ?? "";
-  document.getElementById("profileTargetWeight").value = p.targetWeight ?? "";
-  document.getElementById("profileTrainingDays").value = p.trainingDays ?? "";
-}
-function saveProfile() {
-  appData.profile.name = document.getElementById("profileName").value.trim() || "User";
-  appData.profile.email = document.getElementById("profileEmail").value.trim() || "you@example.com";
-  appData.profile.age = +document.getElementById("profileAge").value || 0;
-  appData.profile.height = +document.getElementById("profileHeight").value || 0;
-  appData.profile.startWeight = +document.getElementById("profileStartWeight").value || appData.profile.startWeight;
-  appData.profile.currentWeight = +document.getElementById("profileCurrentWeight").value || appData.profile.currentWeight;
-  appData.profile.targetWeight = +document.getElementById("profileTargetWeight").value || appData.profile.targetWeight;
-  appData.profile.trainingDays = +document.getElementById("profileTrainingDays").value || appData.profile.trainingDays;
-  saveData();
-  renderProfile();
-  renderProgress();
-  renderToday();
-  alert("Profile saved.");
-}
-function resetAllData() {
-  if (!confirm("Delete all local workouts, meals, and weight logs from this device?")) return;
-  const preservedProfile = { ...appData.profile };
-  const preservedAuth = appData.auth ? { ...appData.auth } : null;
-  appData = defaultData();
-  appData.profile = preservedProfile;
-  appData.auth = preservedAuth;
-  appData.progress.startDate = todayKey();
-  saveData();
-  selectedProgramDay = null;
-  renderAll();
-}
-
-function showInstallBanner() {
-  document.getElementById("installBanner").classList.add("show");
-}
-function closeInstallBanner() {
-  document.getElementById("installBanner").classList.remove("show");
-}
-
-function renderAll() {
-  renderToday();
-  renderProgram();
-  renderNutrition();
-  renderProgress();
-  renderProfile();
-  document.getElementById("todayDate").textContent = longDate();
-}
-
-window.addEventListener("load", () => {
-  maybeOpenApp();
-  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    setTimeout(() => {
-      if (!window.navigator.standalone) showInstallBanner();
-    }, 1200);
-  }
-});
 </script>
+
 </body>
 </html>
