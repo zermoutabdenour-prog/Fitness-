@@ -1,155 +1,553 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FitTrack Pro</title>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body {
-      font-family: Arial;
-      background: #0b0f1a;
-      color: white;
-      margin: 0;
-      padding: 20px;
+    :root{
+      --bg:#0a0f1d;
+      --card:#131c31;
+      --card2:#17233d;
+      --text:#f5f7ff;
+      --muted:#97a3c3;
+      --blue:#4ea1ff;
+      --green:#22c55e;
+      --red:#ef4444;
+      --border:rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:linear-gradient(180deg,#08101c,#0a0f1d 45%);
+      color:var(--text);
+    }
+    .page{display:none;padding:20px}
+    .page.active{display:block}
+    .auth-wrap{max-width:520px}
+    h1,h2,h3,h4{margin:0 0 10px}
+    .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
+    input{
+      width:100%;
+      padding:14px;
+      margin:10px 0;
+      border-radius:10px;
+      border:1px solid #24314f;
+      background:#10192b;
+      color:white;
+      font-size:15px;
+    }
+    button{
+      width:100%;
+      padding:14px;
+      margin-top:10px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:15px;
+      font-weight:700;
+    }
+    .btn-primary{background:var(--blue);color:white}
+    .btn-secondary{background:#20242d;color:white}
+    .msg{
+      margin-top:12px;
+      padding:12px;
+      border-radius:10px;
+      display:none;
+      font-size:14px;
+    }
+    .msg.show{display:block}
+    .msg.ok{background:#102218;border:1px solid #1f8b48;color:#bdf3cf}
+    .msg.error{background:#2b1417;border:1px solid #a8343f;color:#ffc3cb}
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .logout-btn{
+      width:auto;
+      padding:10px 14px;
+      margin:0;
+      background:#242833;
+      color:white;
+      border-radius:10px;
     }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      background: #111827;
-      border: 1px solid #333;
-      color: white;
-      border-radius: 8px;
+    .hero{
+      background:linear-gradient(135deg,#16315e,#0f1f3b);
+      border:1px solid rgba(78,161,255,.2);
+      border-radius:20px;
+      padding:18px;
+      margin-bottom:16px;
+    }
+    .hero .eyebrow{
+      color:#8ebeff;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      margin-bottom:8px;
+      font-weight:700;
+    }
+    .hero h2{
+      font-size:30px;
+      margin-bottom:6px;
+    }
+    .hero p{
+      color:#d1dcff;
+      margin:0 0 14px;
+      line-height:1.45;
+    }
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-bottom:16px;
+    }
+    .card{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+    }
+    .stat-num{
+      font-size:28px;
+      font-weight:800;
+      line-height:1;
+      margin-bottom:6px;
+    }
+    .stat-label{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.8px;
     }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+    .section-title{
+      margin:20px 0 10px;
+      font-size:22px;
+      font-weight:800;
     }
 
-    .login-btn {
-      background: #3b82f6;
-      color: white;
+    .exercise{
+      background:linear-gradient(180deg,#161f34,#131b2f);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+      margin-bottom:10px;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .exercise.done{
+      border-color:rgba(34,197,94,.35);
+      background:linear-gradient(180deg,#12261a,#102117);
+    }
+    .exercise-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .exercise-name{
+      font-size:18px;
+      font-weight:800;
+    }
+    .exercise-sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+    }
+    .pill{
+      display:inline-block;
+      margin-top:10px;
+      padding:5px 10px;
+      border-radius:999px;
+      background:rgba(78,161,255,.12);
+      color:#9ec9ff;
+      font-size:12px;
+      font-weight:700;
     }
 
-    .signup-btn {
-      background: #222;
-      color: white;
+    .tracker-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .tracker-big{
+      font-size:30px;
+      font-weight:800;
+      line-height:1;
+      margin-bottom:6px;
+    }
+    .history-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 0;
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+    .history-item:last-child{border-bottom:none}
+    .small{
+      color:var(--muted);
+      font-size:13px;
     }
 
-    #appPage {
-      display: none;
+    .nav{
+      position:fixed;
+      bottom:0;
+      left:0;
+      width:100%;
+      display:flex;
+      background:#0e121b;
+      border-top:1px solid #202838;
+      z-index:50;
+    }
+    .nav.hidden{display:none}
+    .nav-btn{
+      flex:1;
+      text-align:center;
+      padding:14px 8px;
+      color:#8f98ab;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:700;
+    }
+    .nav-btn.active{
+      color:var(--blue);
+    }
+
+    .content-section{display:none}
+    .content-section.active{display:block}
+    .spacer{height:85px}
+
+    @media(max-width:700px){
+      .stats,.tracker-grid{grid-template-columns:1fr}
     }
   </style>
 </head>
-
 <body>
 
-<!-- ================= LOGIN PAGE ================= -->
-<div id="loginPage">
-  <h2>Login</h2>
+  <!-- AUTH -->
+  <div id="authPage" class="page active">
+    <div class="auth-wrap">
+      <h1>FitTrack Pro</h1>
+      <div class="sub">Real Supabase authentication</div>
 
-  <input id="email" type="email" placeholder="Email" />
-  <input id="password" type="password" placeholder="Password" />
+      <input id="email" type="email" placeholder="Email" />
+      <input id="password" type="password" placeholder="Password" />
 
-  <button class="login-btn" onclick="loginUser()">Login</button>
-  <button class="signup-btn" onclick="signupUser()">Create Account</button>
-</div>
+      <button class="btn-primary" onclick="login()">Login</button>
+      <button class="btn-secondary" onclick="signup()">Create Account</button>
 
+      <div id="authMessage" class="msg"></div>
+    </div>
+  </div>
 
-<!-- ================= APP PAGE ================= -->
-<div id="appPage">
-  <h2>Welcome 🚀</h2>
-  <p>You are logged in</p>
+  <!-- APP -->
+  <div id="appPage" class="page">
+    <div class="topbar">
+      <div>
+        <h1>FitTrack Pro</h1>
+        <div class="sub" id="userEmail">Logged in</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
 
-  <button onclick="logoutUser()">Logout</button>
-</div>
+    <!-- TODAY -->
+    <div id="sectionToday" class="content-section active">
+      <div class="hero">
+        <div class="eyebrow">Today’s Mission</div>
+        <h2>Push Day</h2>
+        <p>Chest · Shoulders · Triceps. Focus on clean form, controlled reps, and full range of motion.</p>
+      </div>
 
+      <div class="stats">
+        <div class="card">
+          <div class="stat-num">20</div>
+          <div class="stat-label">Weeks</div>
+        </div>
+        <div class="card">
+          <div class="stat-num">5</div>
+          <div class="stat-label">Days / Week</div>
+        </div>
+        <div class="card">
+          <div class="stat-num">93</div>
+          <div class="stat-label">Target Kg</div>
+        </div>
+      </div>
 
-<!-- ================= SUPABASE ================= -->
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+      <div class="card">
+        <h3>Today Focus</h3>
+        <div class="small">Complete your main push session and then update your weight tracker if needed.</div>
+      </div>
+    </div>
 
-// 🔥 YOUR CONFIG (already correct)
-const supabaseUrl = "https://hcgdvkztosxlpzyoabmc.supabase.co"
-const supabaseKey = "sb_publishable_E-OglMzuyvUeXsfCPUOBnQ_fGuO1dJP"
+    <!-- WORKOUT -->
+    <div id="sectionWorkout" class="content-section">
+      <div class="section-title">Workout</div>
+      <div class="sub">Tap an exercise to save completion in Supabase.</div>
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+      <div id="benchCard" class="exercise" onclick="saveWorkout('Bench Press','4x8','benchCard')">
+        <div class="exercise-header">
+          <div class="exercise-name">Bench Press</div>
+          <div>✔️</div>
+        </div>
+        <div class="exercise-sub">Primary chest compound</div>
+        <div class="pill">4 x 8</div>
+      </div>
 
+      <div id="inclineCard" class="exercise" onclick="saveWorkout('Incline Dumbbell Press','3x10','inclineCard')">
+        <div class="exercise-header">
+          <div class="exercise-name">Incline Dumbbell Press</div>
+          <div>✔️</div>
+        </div>
+        <div class="exercise-sub">Upper chest + front delt</div>
+        <div class="pill">3 x 10</div>
+      </div>
 
-// ================= LOGIN =================
-window.loginUser = async function () {
-  const email = document.getElementById("email").value
-  const password = document.getElementById("password").value
+      <div id="shoulderCard" class="exercise" onclick="saveWorkout('Shoulder Press','3x10','shoulderCard')">
+        <div class="exercise-header">
+          <div class="exercise-name">Shoulder Press</div>
+          <div>✔️</div>
+        </div>
+        <div class="exercise-sub">Shoulder strength movement</div>
+        <div class="pill">3 x 10</div>
+      </div>
 
-  if (!email || !password) {
-    alert("Enter email & password")
-    return
-  }
+      <div id="workoutStatus" class="msg"></div>
+    </div>
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  })
+    <!-- TRACKER -->
+    <div id="sectionTracker" class="content-section">
+      <div class="section-title">Tracker</div>
+      <div class="sub">Save your weight and load your history from Supabase.</div>
 
-  if (error) {
-    alert("❌ " + error.message)
-    return
-  }
+      <div class="tracker-grid">
+        <div class="card">
+          <div class="tracker-big">112</div>
+          <div class="stat-label">Start Weight</div>
+        </div>
+        <div class="card">
+          <div class="tracker-big">93</div>
+          <div class="stat-label">Goal Weight</div>
+        </div>
+      </div>
 
-  alert("✅ Login successful")
+      <div class="card">
+        <h3>Log Weight</h3>
+        <input id="weightInput" type="number" step="0.1" placeholder="Enter weight in kg" />
+        <button class="btn-primary" onclick="saveWeight()">Save Weight</button>
+      </div>
 
-  document.getElementById("loginPage").style.display = "none"
-  document.getElementById("appPage").style.display = "block"
-}
+      <div class="card">
+        <h3>Weight History</h3>
+        <div id="history">No weight entries yet.</div>
+      </div>
+    </div>
 
+    <div class="spacer"></div>
+  </div>
 
-// ================= SIGNUP =================
-window.signupUser = async function () {
-  const email = document.getElementById("email").value
-  const password = document.getElementById("password").value
+  <!-- NAV -->
+  <div id="navBar" class="nav hidden">
+    <div id="navToday" class="nav-btn active" onclick="showSection('Today')">Today</div>
+    <div id="navWorkout" class="nav-btn" onclick="showSection('Workout')">Workout</div>
+    <div id="navTracker" class="nav-btn" onclick="showSection('Tracker')">Tracker</div>
+  </div>
 
-  if (!email || !password) {
-    alert("Enter email & password first")
-    return
-  }
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password
-  })
+    const supabaseUrl = "https://hcgdvkztosxlpzoyabmc.supabase.co"
+    const supabaseKey = "sb_publishable_E-OglMzuyvUeXsfCPUOBnQ_fGuO1dJP"
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
-  if (error) {
-    alert("❌ " + error.message)
-    return
-  }
+    function showAuthMessage(text, type = "ok") {
+      const box = document.getElementById("authMessage")
+      box.textContent = text
+      box.className = "msg show " + type
+    }
 
-  alert("✅ Account created — now login")
-}
+    function showWorkoutMessage(text, type = "ok") {
+      const box = document.getElementById("workoutStatus")
+      box.textContent = text
+      box.className = "msg show " + type
+    }
 
+    window.signup = async function () {
+      const email = document.getElementById("email").value.trim()
+      const password = document.getElementById("password").value.trim()
 
-// ================= LOGOUT =================
-window.logoutUser = async function () {
-  await supabase.auth.signOut()
+      if (!email || !password) {
+        showAuthMessage("Please enter email and password first.", "error")
+        return
+      }
 
-  document.getElementById("appPage").style.display = "none"
-  document.getElementById("loginPage").style.display = "block"
-}
+      const { error } = await supabase.auth.signUp({
+        email,
+        password
+      })
 
+      if (error) {
+        showAuthMessage(error.message, "error")
+        return
+      }
 
-// ================= AUTO SESSION =================
-const { data: { session } } = await supabase.auth.getSession()
+      showAuthMessage("Account created successfully. Now login with the same email and password.", "ok")
+    }
 
-if (session) {
-  document.getElementById("loginPage").style.display = "none"
-  document.getElementById("appPage").style.display = "block"
-}
-</script>
+    window.login = async function () {
+      const email = document.getElementById("email").value.trim()
+      const password = document.getElementById("password").value.trim()
 
+      if (!email || !password) {
+        showAuthMessage("Please enter email and password.", "error")
+        return
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (error) {
+        showAuthMessage(error.message, "error")
+        return
+      }
+
+      openApp(data.user)
+    }
+
+    window.logout = async function () {
+      await supabase.auth.signOut()
+      document.getElementById("appPage").classList.remove("active")
+      document.getElementById("authPage").classList.add("active")
+      document.getElementById("navBar").classList.add("hidden")
+    }
+
+    function openApp(user) {
+      document.getElementById("authPage").classList.remove("active")
+      document.getElementById("appPage").classList.add("active")
+      document.getElementById("navBar").classList.remove("hidden")
+      document.getElementById("userEmail").textContent = user.email
+      showSection("Today")
+      loadWeights()
+    }
+
+    window.showSection = function (name) {
+      document.getElementById("sectionToday").classList.remove("active")
+      document.getElementById("sectionWorkout").classList.remove("active")
+      document.getElementById("sectionTracker").classList.remove("active")
+
+      document.getElementById("navToday").classList.remove("active")
+      document.getElementById("navWorkout").classList.remove("active")
+      document.getElementById("navTracker").classList.remove("active")
+
+      if (name === "Today") {
+        document.getElementById("sectionToday").classList.add("active")
+        document.getElementById("navToday").classList.add("active")
+      }
+
+      if (name === "Workout") {
+        document.getElementById("sectionWorkout").classList.add("active")
+        document.getElementById("navWorkout").classList.add("active")
+      }
+
+      if (name === "Tracker") {
+        document.getElementById("sectionTracker").classList.add("active")
+        document.getElementById("navTracker").classList.add("active")
+      }
+    }
+
+    window.saveWorkout = async function (exerciseName, setsReps, cardId) {
+      const { data: userData, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !userData.user) {
+        showWorkoutMessage("You must be logged in.", "error")
+        return
+      }
+
+      const { error } = await supabase.from("workouts").insert({
+        user_id: userData.user.id,
+        exercise: exerciseName,
+        completed: true
+      })
+
+      if (error) {
+        showWorkoutMessage(error.message, "error")
+        return
+      }
+
+      document.getElementById(cardId).classList.add("done")
+      showWorkoutMessage(exerciseName + " saved successfully.", "ok")
+    }
+
+    window.saveWeight = async function () {
+      const weight = document.getElementById("weightInput").value.trim()
+      const { data: userData, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !userData.user) {
+        alert("You must be logged in.")
+        return
+      }
+
+      if (!weight) {
+        alert("Enter your weight first.")
+        return
+      }
+
+      const { error } = await supabase.from("weights").insert({
+        user_id: userData.user.id,
+        weight: weight
+      })
+
+      if (error) {
+        alert(error.message)
+        return
+      }
+
+      document.getElementById("weightInput").value = ""
+      loadWeights()
+    }
+
+    async function loadWeights() {
+      const { data: userData, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !userData.user) return
+
+      const { data, error } = await supabase
+        .from("weights")
+        .select("*")
+        .eq("user_id", userData.user.id)
+        .order("created_at", { ascending: false })
+
+      if (error) {
+        document.getElementById("history").innerHTML = "<div>" + error.message + "</div>"
+        return
+      }
+
+      if (!data || data.length === 0) {
+        document.getElementById("history").innerHTML = "No weight entries yet."
+        return
+      }
+
+      document.getElementById("history").innerHTML = data.map(item => `
+        <div class="history-item">
+          <div>
+            <div><strong>${item.weight} kg</strong></div>
+            <div class="small">${new Date(item.created_at).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join("")
+    }
+
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session) openApp(session.user)
+  </script>
 </body>
 </html>
