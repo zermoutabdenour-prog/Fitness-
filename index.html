@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FitTrack Pro</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root{
       --bg:#0a0f1d;
@@ -57,11 +59,11 @@
       border-radius:10px;
       display:none;
       font-size:14px;
+      line-height:1.45;
     }
     .msg.show{display:block}
     .msg.ok{background:#102218;border:1px solid #1f8b48;color:#bdf3cf}
     .msg.error{background:#2b1417;border:1px solid #a8343f;color:#ffc3cb}
-
     .topbar{
       display:flex;
       justify-content:space-between;
@@ -77,7 +79,6 @@
       color:white;
       border-radius:10px;
     }
-
     .hero{
       background:linear-gradient(135deg,#16315e,#0f1f3b);
       border:1px solid rgba(78,161,255,.2);
@@ -126,13 +127,11 @@
       text-transform:uppercase;
       letter-spacing:.8px;
     }
-
     .section-title{
       margin:20px 0 10px;
       font-size:22px;
       font-weight:800;
     }
-
     .exercise{
       background:linear-gradient(180deg,#161f34,#131b2f);
       border:1px solid var(--border);
@@ -171,7 +170,6 @@
       font-size:12px;
       font-weight:700;
     }
-
     .tracker-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -196,7 +194,6 @@
       color:var(--muted);
       font-size:13px;
     }
-
     .nav{
       position:fixed;
       bottom:0;
@@ -220,11 +217,9 @@
     .nav-btn.active{
       color:var(--blue);
     }
-
     .content-section{display:none}
     .content-section.active{display:block}
     .spacer{height:85px}
-
     @media(max-width:700px){
       .stats,.tracker-grid{grid-template-columns:1fr}
     }
@@ -354,180 +349,174 @@
     <div id="navTracker" class="nav-btn" onclick="showSection('Tracker')">Tracker</div>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-    const supabaseUrl = "https://hcgdvkztosxlpzoyabmc.supabase.co"
-    const supabaseKey = "sb_publishable_E-OglMzuyvUeXsfCPUOBnQ_fGuO1dJP"
-    const supabase = createClient(supabaseUrl, supabaseKey)
+  <script>
+    const supabaseUrl = "https://hcgdvkztosxlpzoyabmc.supabase.co";
+    const supabaseKey = "PASTE_FULL_COPIED_PUBLISHABLE_KEY_HERE";
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     function showAuthMessage(text, type = "ok") {
-      const box = document.getElementById("authMessage")
-      box.textContent = text
-      box.className = "msg show " + type
+      const box = document.getElementById("authMessage");
+      box.textContent = text;
+      box.className = "msg show " + type;
     }
 
     function showWorkoutMessage(text, type = "ok") {
-      const box = document.getElementById("workoutStatus")
-      box.textContent = text
-      box.className = "msg show " + type
+      const box = document.getElementById("workoutStatus");
+      box.textContent = text;
+      box.className = "msg show " + type;
     }
 
-    window.signup = async function () {
-      const email = document.getElementById("email").value.trim()
-      const password = document.getElementById("password").value.trim()
+    async function signup() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
       if (!email || !password) {
-        showAuthMessage("Please enter email and password first.", "error")
-        return
+        showAuthMessage("Please enter email and password first.", "error");
+        return;
       }
 
-      const { error } = await supabase.auth.signUp({
-        email,
-        password
-      })
-
-      if (error) {
-        showAuthMessage(error.message, "error")
-        return
+      try {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) {
+          showAuthMessage(error.message, "error");
+          return;
+        }
+        showAuthMessage("Account created successfully. Now login with the same email and password.", "ok");
+      } catch (err) {
+        showAuthMessage("Network error: " + err.message, "error");
       }
-
-      showAuthMessage("Account created successfully. Now login with the same email and password.", "ok")
     }
 
-    window.login = async function () {
-      const email = document.getElementById("email").value.trim()
-      const password = document.getElementById("password").value.trim()
+    async function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
       if (!email || !password) {
-        showAuthMessage("Please enter email and password.", "error")
-        return
+        showAuthMessage("Please enter email and password.", "error");
+        return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (error) {
-        showAuthMessage(error.message, "error")
-        return
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          showAuthMessage(error.message, "error");
+          return;
+        }
+        openApp(data.user);
+      } catch (err) {
+        showAuthMessage("Network error: " + err.message, "error");
       }
-
-      openApp(data.user)
     }
 
-    window.logout = async function () {
-      await supabase.auth.signOut()
-      document.getElementById("appPage").classList.remove("active")
-      document.getElementById("authPage").classList.add("active")
-      document.getElementById("navBar").classList.add("hidden")
+    async function logout() {
+      await supabase.auth.signOut();
+      document.getElementById("appPage").classList.remove("active");
+      document.getElementById("authPage").classList.add("active");
+      document.getElementById("navBar").classList.add("hidden");
     }
 
     function openApp(user) {
-      document.getElementById("authPage").classList.remove("active")
-      document.getElementById("appPage").classList.add("active")
-      document.getElementById("navBar").classList.remove("hidden")
-      document.getElementById("userEmail").textContent = user.email
-      showSection("Today")
-      loadWeights()
+      document.getElementById("authPage").classList.remove("active");
+      document.getElementById("appPage").classList.add("active");
+      document.getElementById("navBar").classList.remove("hidden");
+      document.getElementById("userEmail").textContent = user.email;
+      showSection("Today");
+      loadWeights();
     }
 
-    window.showSection = function (name) {
-      document.getElementById("sectionToday").classList.remove("active")
-      document.getElementById("sectionWorkout").classList.remove("active")
-      document.getElementById("sectionTracker").classList.remove("active")
+    function showSection(name) {
+      document.getElementById("sectionToday").classList.remove("active");
+      document.getElementById("sectionWorkout").classList.remove("active");
+      document.getElementById("sectionTracker").classList.remove("active");
 
-      document.getElementById("navToday").classList.remove("active")
-      document.getElementById("navWorkout").classList.remove("active")
-      document.getElementById("navTracker").classList.remove("active")
+      document.getElementById("navToday").classList.remove("active");
+      document.getElementById("navWorkout").classList.remove("active");
+      document.getElementById("navTracker").classList.remove("active");
 
       if (name === "Today") {
-        document.getElementById("sectionToday").classList.add("active")
-        document.getElementById("navToday").classList.add("active")
+        document.getElementById("sectionToday").classList.add("active");
+        document.getElementById("navToday").classList.add("active");
       }
-
       if (name === "Workout") {
-        document.getElementById("sectionWorkout").classList.add("active")
-        document.getElementById("navWorkout").classList.add("active")
+        document.getElementById("sectionWorkout").classList.add("active");
+        document.getElementById("navWorkout").classList.add("active");
       }
-
       if (name === "Tracker") {
-        document.getElementById("sectionTracker").classList.add("active")
-        document.getElementById("navTracker").classList.add("active")
+        document.getElementById("sectionTracker").classList.add("active");
+        document.getElementById("navTracker").classList.add("active");
       }
     }
 
-    window.saveWorkout = async function (exerciseName, setsReps, cardId) {
-      const { data: userData, error: userError } = await supabase.auth.getUser()
+    async function saveWorkout(exerciseName, setsReps, cardId) {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError || !userData.user) {
-        showWorkoutMessage("You must be logged in.", "error")
-        return
+        showWorkoutMessage("You must be logged in.", "error");
+        return;
       }
 
       const { error } = await supabase.from("workouts").insert({
         user_id: userData.user.id,
         exercise: exerciseName,
         completed: true
-      })
+      });
 
       if (error) {
-        showWorkoutMessage(error.message, "error")
-        return
+        showWorkoutMessage(error.message, "error");
+        return;
       }
 
-      document.getElementById(cardId).classList.add("done")
-      showWorkoutMessage(exerciseName + " saved successfully.", "ok")
+      document.getElementById(cardId).classList.add("done");
+      showWorkoutMessage(exerciseName + " saved successfully.", "ok");
     }
 
-    window.saveWeight = async function () {
-      const weight = document.getElementById("weightInput").value.trim()
-      const { data: userData, error: userError } = await supabase.auth.getUser()
+    async function saveWeight() {
+      const weight = document.getElementById("weightInput").value.trim();
+      const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError || !userData.user) {
-        alert("You must be logged in.")
-        return
+        alert("You must be logged in.");
+        return;
       }
 
       if (!weight) {
-        alert("Enter your weight first.")
-        return
+        alert("Enter your weight first.");
+        return;
       }
 
       const { error } = await supabase.from("weights").insert({
         user_id: userData.user.id,
         weight: weight
-      })
+      });
 
       if (error) {
-        alert(error.message)
-        return
+        alert(error.message);
+        return;
       }
 
-      document.getElementById("weightInput").value = ""
-      loadWeights()
+      document.getElementById("weightInput").value = "";
+      loadWeights();
     }
 
     async function loadWeights() {
-      const { data: userData, error: userError } = await supabase.auth.getUser()
+      const { data: userData, error: userError } = await supabase.auth.getUser();
 
-      if (userError || !userData.user) return
+      if (userError || !userData.user) return;
 
       const { data, error } = await supabase
         .from("weights")
         .select("*")
         .eq("user_id", userData.user.id)
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false });
 
       if (error) {
-        document.getElementById("history").innerHTML = "<div>" + error.message + "</div>"
-        return
+        document.getElementById("history").innerHTML = "<div>" + error.message + "</div>";
+        return;
       }
 
       if (!data || data.length === 0) {
-        document.getElementById("history").innerHTML = "No weight entries yet."
-        return
+        document.getElementById("history").innerHTML = "No weight entries yet.";
+        return;
       }
 
       document.getElementById("history").innerHTML = data.map(item => `
@@ -537,11 +526,12 @@
             <div class="small">${new Date(item.created_at).toLocaleString()}</div>
           </div>
         </div>
-      `).join("")
+      `).join("");
     }
 
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session) openApp(session.user)
+    supabase.auth.getSession().then(({ data }) => {
+      if (data && data.session) openApp(data.session.user);
+    });
   </script>
 </body>
 </html>
