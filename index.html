@@ -432,9 +432,9 @@ body {
     </div>
 
     <div class="card-row">
-      <div class="card"><div class="card-label">Start</div><div class="card-val" style="color:var(--mu2)">112</div><div class="card-unit">kg</div></div>
+      <div class="card"><div class="card-label">Start</div><div class="card-val" style="color:var(--mu2)" id="start-w">112</div><div class="card-unit">kg</div></div>
       <div class="card"><div class="card-label">Current</div><div class="card-val c-grn" id="cur-w">112</div><div class="card-unit">kg</div></div>
-      <div class="card"><div class="card-label">Target</div><div class="card-val" style="color:var(--acc)">93</div><div class="card-unit">kg</div></div>
+      <div class="card"><div class="card-label">Target</div><div class="card-val" style="color:var(--acc)" id="target-w">93</div><div class="card-unit">kg</div></div>
     </div>
 
     <div class="card" style="margin-bottom:12px">
@@ -444,7 +444,7 @@ body {
       </div>
       <div class="pw" style="height:10px"><div class="pf pf-green" id="prog-bar" style="height:10px;width:0%"></div></div>
       <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--mu)">
-        <span>112 kg start</span><span id="lost-lbl">0 kg lost</span><span>93 kg goal</span>
+        <span id="start-lbl">112 kg start</span><span id="lost-lbl">0 kg lost</span><span id="target-lbl">93 kg goal</span>
       </div>
     </div>
 
@@ -476,6 +476,44 @@ body {
     <div style="height:16px"></div>
   </div>
 
+
+  <!-- PROFILE -->
+  <div class="page" id="pg-profile">
+    <div class="top-header">
+      <h1 class="c-acc">PROFILE</h1>
+      <div class="sub">Your local account and targets</div>
+    </div>
+    <div class="card">
+      <div class="mc-lbl" style="margin-bottom:10px">Account</div>
+      <div style="display:grid;gap:10px">
+        <input class="w-input" style="font-size:20px;text-align:left" id="pf-name" placeholder="Your name">
+        <input class="w-input" style="font-size:18px;text-align:left" id="pf-email" placeholder="Email (local only)">
+      </div>
+    </div>
+    <div class="card">
+      <div class="mc-lbl" style="margin-bottom:10px">Body Data</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <input class="w-input" style="font-size:20px" id="pf-age" type="number" placeholder="Age">
+        <input class="w-input" style="font-size:20px" id="pf-height" type="number" placeholder="Height cm">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <input class="w-input" style="font-size:20px" id="pf-start" type="number" step="0.1" placeholder="Start kg">
+        <input class="w-input" style="font-size:20px" id="pf-target" type="number" step="0.1" placeholder="Target kg">
+      </div>
+    </div>
+    <div class="card">
+      <div class="mc-lbl" style="margin-bottom:10px">Plan</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <input class="w-input" style="font-size:20px" id="pf-days" type="number" placeholder="Days/week">
+        <input class="w-input" style="font-size:20px" id="pf-calories" type="number" placeholder="Calories">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;padding:0 16px 16px">
+      <button class="log-btn" style="flex:1" onclick="saveProfile()">Save Profile</button>
+      <button class="log-btn" style="background:var(--red)" onclick="signOutLocal()">Sign Out</button>
+    </div>
+  </div>
+
 </div><!-- #app -->
 
 <!-- ══ BOTTOM NAV ══ -->
@@ -495,6 +533,11 @@ body {
   <div class="nb" id="nb-progress" onclick="goPage('progress')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     <span class="nb-lbl">PROGRESS</span>
+  </div>
+
+  <div class="nb" id="nb-profile" onclick="goPage('profile')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="nb-lbl">PROFILE</span>
   </div>
 </nav>
 
@@ -525,6 +568,29 @@ body {
   <button class="done-btn" onclick="closeDone()">Keep Going 💪</button>
 </div>
 
+
+
+<div id="auth-ov" style="position:fixed;inset:0;background:rgba(0,0,0,0.94);z-index:350;display:none;align-items:center;justify-content:center;padding:20px">
+  <div class="card" style="width:min(520px,100%);margin:0">
+    <div style="font-family:var(--fh);font-size:30px;font-weight:800;margin-bottom:6px;color:var(--acc)">WELCOME</div>
+    <div style="font-size:14px;color:var(--mu2);margin-bottom:16px;line-height:1.5">Create your local profile. This saves your workouts, weight log, and targets on this device.</div>
+    <div style="display:grid;gap:10px">
+      <input class="w-input" style="font-size:20px;text-align:left" id="auth-name" placeholder="Your name">
+      <input class="w-input" style="font-size:18px;text-align:left" id="auth-email" placeholder="Email (optional)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <input class="w-input" style="font-size:20px" id="auth-age" type="number" placeholder="Age">
+        <input class="w-input" style="font-size:20px" id="auth-height" type="number" placeholder="Height cm">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <input class="w-input" style="font-size:20px" id="auth-start" type="number" step="0.1" placeholder="Start kg">
+        <input class="w-input" style="font-size:20px" id="auth-target" type="number" step="0.1" placeholder="Target kg">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="log-btn" style="flex:1" onclick="createLocalAccount()">Save & Start</button>
+    </div>
+  </div>
+</div>
 
 <script>
 
@@ -686,6 +752,17 @@ let S = {
   timerInt: null,
   timerTotal: 0,
   timerLeft: 0,
+  profile: {
+    created:false,
+    name:'Wassim',
+    email:'',
+    age:33,
+    height:192,
+    startWeight:112,
+    targetWeight:93,
+    trainingDays:5,
+    calories:2500
+  }
 };
 
 function loadS() {
@@ -696,6 +773,8 @@ function loadS() {
   if (!S.startDate)  { S.startDate = todayKey(); saveS(); }
   if (!S.checked)    S.checked    = {};
   if (!S.weightLog)  S.weightLog  = [];
+  if (!S.profile) S.profile = {created:false,name:'Wassim',email:'',age:33,height:192,startWeight:112,targetWeight:93,trainingDays:5,calories:2500};
+  S.profile = Object.assign({created:false,name:'Wassim',email:'',age:33,height:192,startWeight:112,targetWeight:93,trainingDays:5,calories:2500}, S.profile || {});
   if (S.selDay == null) S.selDay  = todayDayIdx();
 }
 
@@ -728,14 +807,16 @@ function exK(di, si, ei) { return `${di}-${si}-${ei}`; }
 // NAVIGATION  — FIX: no implicit event object
 // ─────────────────────────────────────────────
 function goPage(page) {
-  ['today','program','nutrition','progress'].forEach(p => {
-    document.getElementById('pg-' + p).classList.toggle('active', p === page);
-    document.getElementById('nb-' + p).classList.toggle('active',  p === page);
+  ['today','program','nutrition','progress','profile'].forEach(p => {
+    const pg = document.getElementById('pg-' + p);
+    const nb = document.getElementById('nb-' + p);
+    if (pg) pg.classList.toggle('active', p === page);
+    if (nb) nb.classList.toggle('active',  p === page);
   });
-  // Scroll to top on tab change
   document.getElementById('app').scrollTop = 0;
   if (page === 'progress')  renderProgress();
   if (page === 'program')   renderProgTabs();
+  if (page === 'profile')   renderProfile();
 }
 
 // ─────────────────────────────────────────────
@@ -995,12 +1076,17 @@ function delLog(date) {
 
 function renderProgress() {
   const log     = S.weightLog;
-  const current = log.length ? log[0].weight : 112;
-  const START   = 112, TARGET = 93;
+  const START   = parseFloat(S.profile.startWeight || 112);
+  const TARGET  = parseFloat(S.profile.targetWeight || 93);
+  const current = log.length ? log[0].weight : START;
   const lost    = Math.max(0, START - current);
   const pct     = Math.min(100, Math.round((lost / (START - TARGET)) * 100));
 
   document.getElementById('cur-w').textContent      = current;
+  document.getElementById('start-w').textContent    = START;
+  document.getElementById('target-w').textContent   = TARGET;
+  document.getElementById('start-lbl').textContent  = START + ' kg start';
+  document.getElementById('target-lbl').textContent = TARGET + ' kg goal';
   document.getElementById('prog-bar').style.width   = pct + '%';
   document.getElementById('prog-pct').textContent   = pct + '%';
   document.getElementById('lost-lbl').textContent   = lost.toFixed(1) + ' kg lost';
@@ -1049,6 +1135,65 @@ function renderProgress() {
       </div>
     </div>`;
   }).join('');
+}
+
+
+function renderProfile() {
+  const p = S.profile || {};
+  const set = (id, val='') => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+  set('pf-name', p.name);
+  set('pf-email', p.email);
+  set('pf-age', p.age);
+  set('pf-height', p.height);
+  set('pf-start', p.startWeight);
+  set('pf-target', p.targetWeight);
+  set('pf-days', p.trainingDays);
+  set('pf-calories', p.calories);
+}
+
+function saveProfile() {
+  S.profile.name = document.getElementById('pf-name').value.trim() || 'Wassim';
+  S.profile.email = document.getElementById('pf-email').value.trim();
+  S.profile.age = parseInt(document.getElementById('pf-age').value || S.profile.age || 33);
+  S.profile.height = parseInt(document.getElementById('pf-height').value || S.profile.height || 192);
+  S.profile.startWeight = parseFloat(document.getElementById('pf-start').value || S.profile.startWeight || 112);
+  S.profile.targetWeight = parseFloat(document.getElementById('pf-target').value || S.profile.targetWeight || 93);
+  S.profile.trainingDays = parseInt(document.getElementById('pf-days').value || S.profile.trainingDays || 5);
+  S.profile.calories = parseInt(document.getElementById('pf-calories').value || S.profile.calories || 2500);
+  S.profile.created = true;
+  saveS();
+  renderToday();
+  renderProgress();
+  alert('Profile saved');
+}
+
+function createLocalAccount() {
+  S.profile.name = document.getElementById('auth-name').value.trim() || 'Wassim';
+  S.profile.email = document.getElementById('auth-email').value.trim();
+  S.profile.age = parseInt(document.getElementById('auth-age').value || 33);
+  S.profile.height = parseInt(document.getElementById('auth-height').value || 192);
+  S.profile.startWeight = parseFloat(document.getElementById('auth-start').value || 112);
+  S.profile.targetWeight = parseFloat(document.getElementById('auth-target').value || 93);
+  S.profile.trainingDays = 5;
+  S.profile.calories = 2500;
+  S.profile.created = true;
+  saveS();
+  document.getElementById('auth-ov').style.display = 'none';
+  renderProfile();
+  renderToday();
+  renderProgress();
+}
+
+function signOutLocal() {
+  if (!confirm('Sign out and clear local data on this device?')) return;
+  localStorage.removeItem('ftp_v3');
+  location.reload();
+}
+
+function initAuth() {
+  if (!S.profile || !S.profile.created) {
+    document.getElementById('auth-ov').style.display = 'flex';
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -1192,7 +1337,9 @@ function init() {
   renderToday();
   renderProgTabs();
   renderProgress();
+  renderProfile();
   initInstallBanner();
+  initAuth();
 }
 
 init();
