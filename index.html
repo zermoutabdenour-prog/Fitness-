@@ -809,15 +809,18 @@ function init(){
 init();
 </script>
   <script>
-document.querySelectorAll('.nb').forEach(btn => {
+      document.querySelectorAll('.nb').forEach(btn => {
   btn.addEventListener('click', () => {
     const target = btn.getAttribute('data-page');
+    const targetPage = document.getElementById(target);
+
+    if (!targetPage) return;
 
     document.querySelectorAll('.page').forEach(p => {
       p.classList.remove('active');
     });
 
-    document.getElementById(target).classList.add('active');
+    targetPage.classList.add('active');
 
     document.querySelectorAll('.nb').forEach(b => {
       b.classList.remove('active');
