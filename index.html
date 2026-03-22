@@ -1,135 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FitTrack Pro</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body{
-      margin:0;
-      padding:20px;
-      font-family:Arial,sans-serif;
-      background:#0b1220;
-      color:#fff;
-    }
-    h1{margin:0 0 10px}
-    p{color:#9fb0d0}
-    input{
-      width:320px;
-      max-width:100%;
-      padding:12px;
-      margin:8px 0;
-      border-radius:8px;
-      border:1px solid #334155;
-      background:#111827;
-      color:#fff;
-      box-sizing:border-box;
-    }
-    button{
-      width:320px;
-      max-width:100%;
-      padding:12px;
-      margin:8px 0;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-weight:bold;
-    }
-    .primary{background:#4da3ff;color:#fff;}
-    .secondary{background:#2a2f3a;color:#fff;}
-    #status{
-      margin-top:16px;
-      max-width:700px;
-      padding:12px;
-      border-radius:8px;
-      border:1px solid #334155;
-      background:#111827;
-      white-space:pre-wrap;
-    }
-  </style>
 </head>
-<body>
 
-  <h1>FitTrack Pro</h1>
-  <p>Clean auth test</p>
+<body style="background:#0b1220;color:white;font-family:Arial;padding:20px;">
 
-  <input id="email" type="email" placeholder="Email">
-  <br>
-  <input id="password" type="password" placeholder="Password">
-  <br>
+<h2>FitTrack Pro (FINAL FIX)</h2>
 
-  <button class="secondary" id="testBtn">Test Connection</button>
-  <button class="secondary" id="signupBtn">Create Account</button>
-  <button class="primary" id="loginBtn">Login</button>
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
 
-  <div id="status">Loading...</div>
+<button onclick="test()">TEST</button>
+<button onclick="signup()">SIGN UP</button>
+<button onclick="login()">LOGIN</button>
 
-  <script>
-    const supabaseUrl = "https://hcgdvkztosxlpzoyabmc.supabase.co";
-    const supabaseKey = "sb_publishable_E-OglMzuyvUeXsfCPUOBnQ_fGuO1dJP";
-    const statusBox = document.getElementById("status");
+<p id="msg">Loading...</p>
 
-    function show(msg){
-      statusBox.textContent = msg;
-    }
+<script>
+const url = "https://hcgdvkztosxlpzoyabmc.supabase.co";
+const key = "sb_publishable_E-OglMzuyvUeXsfCPUOBnQ_fGuO1dJP";
 
-    if (!window.supabase) {
-      show("Supabase library failed to load.");
-    } else {
-      show("JS loaded. Buttons are ready.");
-      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const msg = document.getElementById("msg");
 
-      document.getElementById("testBtn").addEventListener("click", async function () {
-        show("Testing connection...");
-        try {
-          const res = await fetch(supabaseUrl + "/auth/v1/settings", {
-            headers: { apikey: supabaseKey }
-          });
-          const text = await res.text();
-          show("Connection OK\nStatus: " + res.status + "\n\n" + text.slice(0,300));
-        } catch (e) {
-          show("Connection failed:\n" + e.message);
-        }
-      });
+function show(t){ msg.innerText = t; }
 
-      document.getElementById("signupBtn").addEventListener("click", async function () {
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
+window.onload = () => {
+  if(!window.supabase){
+    show("❌ Supabase not loaded");
+    return;
+  }
+  window.sb = window.supabase.createClient(url, key);
+  show("✅ Ready");
+};
 
-        if (!email || !password) {
-          show("Enter email and password first.");
-          return;
-        }
+async function test(){
+  try{
+    const r = await fetch(url+"/auth/v1/settings",{headers:{apikey:key}});
+    show("Status: "+r.status);
+  }catch(e){
+    show("Error: "+e.message);
+  }
+}
 
-        show("Creating account...");
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) {
-          show("Signup error:\n" + error.message);
-        } else {
-          show("Account created. Now click Login.");
-        }
-      });
+async function signup(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-      document.getElementById("loginBtn").addEventListener("click", async function () {
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
+  const {error} = await sb.auth.signUp({email,password});
+  show(error ? error.message : "Signup OK");
+}
 
-        if (!email || !password) {
-          show("Enter email and password first.");
-          return;
-        }
+async function login(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-        show("Logging in...");
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const {error} = await sb.auth.signInWithPassword({email,password});
+  show(error ? error.message : "LOGIN SUCCESS");
+}
+</script>
 
-        if (error) {
-          show("Login error:\n" + error.message);
-        } else {
-          show("LOGIN SUCCESS\nUser: " + data.user.email);
-        }
-      });
-    }
-  </script>
 </body>
 </html>
