@@ -1,207 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FitTrack Pro Debug</title>
+  <meta charset="UTF-8">
+  <title>FitTrack Debug FIXED</title>
+
+  <!-- IMPORTANT: Supabase script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    body{
-      font-family:Arial,sans-serif;
+    body {
       background:#0b1220;
       color:#fff;
+      font-family:Arial;
       padding:20px;
-      margin:0;
     }
-    h1{margin-top:0}
-    input{
-      width:100%;
-      max-width:420px;
-      padding:12px;
-      margin:10px 0;
-      border-radius:8px;
-      border:1px solid #334155;
-      background:#111827;
-      color:#fff;
-      box-sizing:border-box;
-    }
-    button{
-      width:100%;
-      max-width:420px;
-      padding:12px;
-      margin:10px 0;
-      border-radius:8px;
+    input, button {
+      width:300px;
+      padding:10px;
+      margin:5px 0;
+      border-radius:6px;
       border:none;
+    }
+    button {
+      background:#4da3ff;
+      color:white;
       cursor:pointer;
-      font-weight:700;
     }
-    .primary{background:#4da3ff;color:#fff;}
-    .secondary{background:#2a2f3a;color:#fff;}
-    .box{
-      max-width:900px;
-      background:#111827;
-      border:1px solid #334155;
-      border-radius:10px;
-      padding:14px;
-      margin-top:16px;
-      white-space:pre-wrap;
-      word-break:break-word;
-      line-height:1.5;
+    #status {
+      margin-top:20px;
+      padding:10px;
+      border:1px solid #555;
     }
-    .ok{border-color:#166534;color:#bbf7d0;background:#052e16;}
-    .err{border-color:#991b1b;color:#fecaca;background:#450a0a;}
-    .muted{color:#94a3b8}
   </style>
 </head>
+
 <body>
-  <h1>FitTrack Pro Debug</h1>
-  <div class="muted">This page will show the exact connection/auth problem.</div>
 
-  <input id="email" type="email" placeholder="Email" />
-  <input id="password" type="password" placeholder="Password" />
+<h2>FitTrack Debug</h2>
 
-  <button class="secondary" onclick="testConnection()">1. Test Supabase Connection</button>
-  <button class="secondary" onclick="signup()">2. Create Account</button>
-  <button class="primary" onclick="login()">3. Login</button>
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
 
-  <div id="status" class="box">Waiting...</div>
+<button onclick="testConnection()">TEST CONNECTION</button>
+<button onclick="signup()">SIGN UP</button>
+<button onclick="login()">LOGIN</button>
 
-  <script>
-    const supabaseUrl = "https://hcgdvkztosxlpzoyabmc.supabase.co";
-    const supabaseKey = "PASTE_YOUR_FULL_COPIED_PUBLISHABLE_KEY_HERE";
+<div id="status">Waiting...</div>
 
-    function show(msg, type="") {
-      const el = document.getElementById("status");
-      el.className = "box " + type;
-      el.textContent = msg;
+<script>
+  // 🔴 YOUR DATA
+  const supabaseUrl = "https://hcgdvkztosxlpzoyabmc.supabase.co";
+  const supabaseKey = "sb_publishable_E-OglMzuyvUeXsfCPUOBnQ_fGuO1dJP";
+
+  let supabase;
+
+  function show(msg){
+    document.getElementById("status").innerText = msg;
+  }
+
+  // 🔴 INIT
+  window.onload = function(){
+    if (!window.supabase) {
+      show("❌ Supabase script NOT loaded");
+      return;
     }
 
-    function getCreds() {
-      return {
-        email: document.getElementById("email").value.trim(),
-        password: document.getElementById("password").value.trim()
-      };
-    }
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    show("✅ JS Loaded — Ready");
+  }
 
-    let supabase = null;
+  // 🔴 TEST CONNECTION
+  async function testConnection(){
+    show("Testing...");
 
     try {
-      if (!window.supabase) {
-        show("Supabase browser library did not load from jsdelivr.", "err");
-      } else {
-        supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        show("Library loaded. Ready to test.", "ok");
-      }
+      const res = await fetch(supabaseUrl + "/auth/v1/settings", {
+        headers: { apikey: supabaseKey }
+      });
+
+      show("Status: " + res.status);
     } catch (e) {
-      show("Init error:\n" + (e?.message || e), "err");
+      show("❌ ERROR: " + e.message);
     }
+  }
 
-    async function testConnection() {
-      try {
-        if (!supabase) {
-          show("Supabase client is not initialized.", "err");
-          return;
-        }
+  // 🔴 SIGNUP
+  async function signup(){
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-        show("Testing network to Supabase...", "");
-        const res = await fetch(supabaseUrl + "/auth/v1/settings", {
-          method: "GET",
-          headers: {
-            "apikey": supabaseKey
-          }
-        });
+    const { error } = await supabase.auth.signUp({ email, password });
 
-        const text = await res.text();
-
-        show(
-          "Connection test finished.\n\n" +
-          "HTTP status: " + res.status + "\n\n" +
-          "Response preview:\n" + text.slice(0, 800),
-          res.ok ? "ok" : "err"
-        );
-      } catch (e) {
-        show(
-          "Network test failed.\n\n" +
-          "Error: " + (e?.message || e) + "\n\n" +
-          "This usually means one of these:\n" +
-          "1) wrong/incomplete publishable key\n" +
-          "2) browser extension or VPN blocking request\n" +
-          "3) network/privacy setting blocking Supabase\n" +
-          "4) wrong Supabase URL\n",
-          "err"
-        );
-      }
+    if(error){
+      show("❌ Signup error: " + error.message);
+    } else {
+      show("✅ Signup OK (check email if enabled)");
     }
+  }
 
-    async function signup() {
-      try {
-        if (!supabase) {
-          show("Supabase client is not initialized.", "err");
-          return;
-        }
+  // 🔴 LOGIN
+  async function login(){
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-        const { email, password } = getCreds();
-        if (!email || !password) {
-          show("Enter email and password first.", "err");
-          return;
-        }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-        show("Creating account...", "");
-
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password
-        });
-
-        if (error) {
-          show("Signup error:\n" + error.message, "err");
-          return;
-        }
-
-        show(
-          "Signup success.\n\nReturned data:\n" +
-          JSON.stringify(data, null, 2),
-          "ok"
-        );
-      } catch (e) {
-        show("Signup crashed:\n" + (e?.message || e), "err");
-      }
+    if(error){
+      show("❌ Login error: " + error.message);
+    } else {
+      show("✅ LOGIN SUCCESS");
     }
+  }
+</script>
 
-    async function login() {
-      try {
-        if (!supabase) {
-          show("Supabase client is not initialized.", "err");
-          return;
-        }
-
-        const { email, password } = getCreds();
-        if (!email || !password) {
-          show("Enter email and password first.", "err");
-          return;
-        }
-
-        show("Logging in...", "");
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (error) {
-          show("Login error:\n" + error.message, "err");
-          return;
-        }
-
-        show(
-          "Login success.\n\nReturned data:\n" +
-          JSON.stringify(data, null, 2),
-          "ok"
-        );
-      } catch (e) {
-        show("Login crashed:\n" + (e?.message || e), "err");
-      }
-    }
-  </script>
 </body>
 </html>
