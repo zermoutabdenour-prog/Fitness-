@@ -2,269 +2,1204 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FitTrack Pro">
+<meta name="theme-color" content="#0a0a0f">
 <title>FitTrack Pro</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0a0a0f;
+  --bg2:    #13131c;
+  --bg3:    #1c1c2a;
+  --card:   #1e1e2d;
+  --border: rgba(255,255,255,0.08);
+  --acc:    #3b82f6;
+  --amb:    #f59e0b;
+  --grn:    #22c55e;
+  --pur:    #8b5cf6;
+  --red:    #ef4444;
+  --txt:    #f0f0f8;
+  --mu:     #6b6b8a;
+  --mu2:    #9090b0;
+  --fh:     'Arial Narrow', 'Impact', 'Haettenschweiler', Arial, sans-serif;
+  --fb:     -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --nh:     72px;
+  --st:     env(safe-area-inset-top,    44px);
+  --sb:     env(safe-area-inset-bottom, 20px);
+  --sl:     env(safe-area-inset-left,   0px);
+  --sr:     env(safe-area-inset-right,  0px);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box; margin: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html {
+  height: 100%;
+  background: var(--bg);
+  /* FIX: don't overflow:hidden on html — kills iOS scroll after keyboard */
+}
+
 body {
-  background: #0a0a0f;
-  color: #f0f0f8;
-  font-family: -apple-system, Arial, sans-serif;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--fb);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  /* FIX: use min-height instead of overflow:hidden */
+  overscroll-behavior: none;
 }
-.container {
-  width: 100%;
-  max-width: 400px;
-  padding: 40px 24px;
+
+/* ── SCROLLABLE CONTENT ── */
+#app {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-top: calc(var(--st) + 4px);
+  padding-bottom: calc(var(--nh) + var(--sb) + 12px);
+  padding-left: var(--sl);
+  padding-right: var(--sr);
 }
-.logo {
-  font-size: 32px;
-  font-weight: 800;
-  color: #3b82f6;
-  letter-spacing: 1px;
-  margin-bottom: 6px;
-  text-align: center;
+
+.page { display: none; padding-bottom: 16px; }
+.page.active { display: block; animation: fadeUp 0.2s ease both; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── TOP HEADER ── */
+.top-header {
+  padding: 16px 20px 12px;
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg);
+  /* FIX: use solid bg instead of gradient+blur which flickers on iOS */
 }
-.tagline {
-  font-size: 13px;
-  color: #6b6b8a;
-  text-align: center;
-  margin-bottom: 40px;
+.top-header h1 { font-family: var(--fh); font-size: 28px; font-weight: 800; letter-spacing: 0.5px; line-height: 1; }
+.top-header .sub { font-size: 13px; color: var(--mu2); margin-top: 3px; }
+.c-acc { color: var(--acc); }
+.c-amb { color: var(--amb); }
+.c-grn { color: var(--grn); }
+
+/* ── CARDS ── */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin: 0 16px 12px; }
+.card-row { display: flex; gap: 10px; padding: 0 16px; margin-bottom: 12px; }
+.card-row .card { flex: 1; margin: 0; padding: 14px 10px; text-align: center; }
+.card-label { font-size: 11px; color: var(--mu); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.card-val { font-family: var(--fh); font-size: 24px; font-weight: 800; line-height: 1; }
+.card-unit { font-size: 11px; color: var(--mu2); margin-top: 2px; }
+
+/* ── PROGRESS BAR ── */
+.pw { background: var(--bg3); border-radius: 999px; overflow: hidden; }
+.pf { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+.pf-blue  { background: linear-gradient(90deg, var(--acc), var(--pur)); }
+.pf-green { background: linear-gradient(90deg, var(--grn), var(--acc)); }
+.pf-amber { background: linear-gradient(90deg, var(--amb), var(--red)); }
+
+/* ── SECTION TITLE ── */
+.sec-title {
+  font-family: var(--fh); font-size: 20px; font-weight: 700;
+  padding: 4px 20px 10px;
+  display: flex; align-items: center; justify-content: space-between;
 }
-.card {
-  background: #1e1e2d;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  padding: 28px 24px;
-}
-.card h2 {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: #f0f0f8;
-}
-.card p {
-  font-size: 13px;
-  color: #6b6b8a;
-  margin-bottom: 24px;
-}
-.input-group {
-  margin-bottom: 14px;
-}
-.input-group label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #9090b0;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  margin-bottom: 6px;
-}
-.input-group input {
-  width: 100%;
-  background: #13131c;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 13px 16px;
-  color: #f0f0f8;
-  font-size: 15px;
-  outline: none;
-  -webkit-appearance: none;
-}
-.input-group input:focus {
-  border-color: #3b82f6;
-}
-.btn-primary {
-  width: 100%;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 700;
+.sec-title span { font-size: 13px; font-family: var(--fb); font-weight: 500; color: var(--acc); }
+
+/* ── EXERCISE ── */
+.ex-list { margin: 0 16px 12px; }
+.ex-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 8px; display: flex; align-items: flex-start; gap: 14px;
   cursor: pointer;
-  margin-top: 8px;
-  letter-spacing: 0.3px;
+  /* FIX: remove transition:all — causes GPU thrash on iPhone with many cards */
+  transition: opacity 0.15s;
+  -webkit-user-select: none; user-select: none;
 }
-.btn-primary:active { opacity: 0.85; }
-.btn-secondary {
-  width: 100%;
-  background: transparent;
-  color: #3b82f6;
-  border: 1px solid rgba(59,130,246,0.3);
-  border-radius: 12px;
-  padding: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
+.ex-item.done { opacity: 0.6; background: rgba(34,197,94,0.05); border-color: rgba(34,197,94,0.2); }
+.ex-item.done .ex-name { text-decoration: line-through; color: var(--grn); }
+.ex-chk {
+  min-width: 32px; height: 32px; border-radius: 50%;
+  border: 2.5px solid var(--mu);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px; flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+  background: var(--bg3);
 }
-.msg {
-  margin-top: 16px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: center;
+.ex-item.done .ex-chk { background: var(--grn); border-color: var(--grn); }
+.ex-chk svg { opacity: 0; transition: opacity 0.15s; }
+.ex-item.done .ex-chk svg { opacity: 1; }
+.ex-body { flex: 1; min-width: 0; }
+.ex-name { font-family: var(--fh); font-size: 17px; font-weight: 700; line-height: 1.2; }
+.ex-detail { font-size: 12px; color: var(--mu2); margin-top: 3px; line-height: 1.4; }
+.ex-tip { font-size: 11px; color: var(--mu); margin-top: 5px; font-style: italic; line-height: 1.45; }
+.ex-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+.t-sets { background: rgba(59,130,246,0.15); color: var(--acc); }
+.t-rest { background: rgba(255,255,255,0.07); color: var(--mu2); }
+.t-warm { background: rgba(245,158,11,0.15); color: var(--amb); }
+.t-crd  { background: rgba(34,197,94,0.15);  color: var(--grn); }
+.t-str  { background: rgba(139,92,246,0.15); color: var(--pur); }
+.t-done-yes { background: rgba(34,197,94,0.25); color: var(--grn); font-weight:700; }
+.t-done-no  { background: rgba(255,255,255,0.05); color: var(--mu); font-size:10px; }
+
+/* ── PHASE HEADER ── */
+.ph-hdr { display: flex; align-items: center; gap: 10px; padding: 6px 20px 8px; }
+.ph-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.ph-name { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--mu2); }
+.ph-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── DAY SCROLL TABS ── */
+.day-scroll {
+  display: flex; gap: 8px; padding: 0 16px 14px;
+  overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.day-scroll::-webkit-scrollbar { display: none; }
+.day-pill {
+  flex-shrink: 0; padding: 8px 14px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--card);
+  cursor: pointer; text-align: center; min-width: 64px;
+  -webkit-user-select: none; user-select: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.day-pill.active { background: var(--acc); border-color: var(--acc); }
+.day-pill .da { font-family: var(--fh); font-size: 15px; font-weight: 700; line-height: 1; }
+.day-pill .dn { font-size: 10px; color: var(--mu2); margin-top: 2px; }
+.day-pill.active .dn { color: rgba(255,255,255,0.75); }
+
+/* ── TODAY HERO ── */
+.hero {
+  margin: 0 16px 14px;
+  background: #0f1a30;
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 20px; padding: 20px;
+}
+.hero .h-tag { font-size: 11px; font-weight: 600; color: var(--acc); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.hero h2 { font-family: var(--fh); font-size: 30px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
+.hero .h-foc { font-size: 13px; color: var(--mu2); margin-bottom: 14px; }
+.hero-stats { display: flex; gap: 20px; }
+.h-stat { font-size: 13px; color: var(--mu2); }
+.h-stat strong { color: var(--txt); font-weight: 600; }
+.h-prog { margin-top: 14px; }
+.h-prog-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; color: var(--mu2); }
+.h-prog-row strong { color: var(--txt); }
+
+/* ── BOTTOM NAV ── */
+#nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  /* FIX: explicit height calc with safe area */
+  height: calc(var(--nh) + var(--sb));
+  background: rgba(10,10,15,0.97);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: flex-start; padding-top: 8px;
+  padding-bottom: var(--sb);
+  padding-left: var(--sl); padding-right: var(--sr);
+  z-index: 100;
+  /* FIX: add -webkit-backdrop-filter AND solid fallback for older iOS */
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.nb {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 4px 0; cursor: pointer; opacity: 0.4;
+  transition: opacity 0.15s;
+  /* FIX: min touch target 44px for iOS HIG */
+  min-height: 44px; justify-content: center;
+}
+.nb.active { opacity: 1; }
+.nb svg { width: 24px; height: 24px; }
+.nb-lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; color: var(--txt); }
+.nb.active .nb-lbl { color: var(--acc); }
+
+/* ── TIMER OVERLAY ── */
+/* FIX: use visibility+opacity instead of display:none/flex — avoids reflow crash on iOS */
+#timer-ov {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 200;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  visibility: hidden; opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+  padding-bottom: var(--sb);
+}
+#timer-ov.show { visibility: visible; opacity: 1; }
+.t-circle {
+  width: 190px; height: 190px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin-bottom: 28px; position: relative;
+}
+.t-circle svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+.t-circle circle.bg  { fill:none; stroke: var(--bg3); stroke-width: 6; }
+/* FIX: correct circumference = 2π×87 = 546.6 */
+.t-circle circle.arc { fill:none; stroke: var(--acc); stroke-width: 6; stroke-linecap: round;
+  stroke-dasharray: 547; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+.t-num { font-family: var(--fh); font-size: 60px; font-weight: 800; line-height: 1; color: var(--txt); }
+.t-lbl { font-size: 13px; color: var(--mu2); }
+.t-msg { font-family: var(--fh); font-size: 22px; font-weight: 700; color: var(--mu2); margin-bottom: 20px; }
+.t-btn { padding: 16px 44px; background: var(--acc); border-radius: 14px; border: none; color: white; font-family: var(--fh); font-size: 18px; font-weight: 700; cursor: pointer; }
+.t-skip { margin-top: 16px; font-size: 14px; color: var(--mu); cursor: pointer; padding: 10px 20px; }
+
+/* ── COMPLETE OVERLAY ── */
+#done-ov {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 200;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 32px;
+  visibility: hidden; opacity: 0;
+  transition: opacity 0.25s, visibility 0.25s;
+  padding-bottom: calc(32px + var(--sb));
+}
+#done-ov.show { visibility: visible; opacity: 1; }
+.done-emoji { font-size: 64px; margin-bottom: 16px; line-height: 1; }
+.done-title { font-family: var(--fh); font-size: 40px; font-weight: 800; line-height: 1.1; margin-bottom: 10px; }
+.done-sub { font-size: 15px; color: var(--mu2); line-height: 1.5; margin-bottom: 28px; max-width: 300px; }
+.done-stats { display: flex; gap: 32px; margin-bottom: 28px; }
+.done-stat .dsv { font-family: var(--fh); font-size: 36px; font-weight: 800; color: var(--grn); }
+.done-stat .dsl { font-size: 12px; color: var(--mu2); margin-top: 2px; }
+.done-btn { padding: 16px 48px; background: var(--grn); border-radius: 16px; border: none; color: white; font-family: var(--fh); font-size: 20px; font-weight: 700; cursor: pointer; }
+
+/* ── REST PAGE ── */
+.rest-hero { margin: 0 16px 14px; border-radius: 20px; padding: 20px; border: 1px solid; }
+.rest-card { margin: 0 16px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.rest-item { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.rest-item:last-child { border-bottom: none; }
+.ri-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
+.ri-txt { font-size: 13px; color: var(--mu2); line-height: 1.5; }
+
+/* ── NUTRITION ── */
+.macro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-bottom: 12px; }
+.mc { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+.mc-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--mu); margin-bottom: 6px; }
+.mc-val { font-family: var(--fh); font-size: 28px; font-weight: 800; line-height: 1; }
+.mc-sub { font-size: 12px; color: var(--mu2); margin-top: 3px; }
+.meal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin: 0 16px 8px; }
+.meal-time  { font-size: 11px; color: var(--acc); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
+.meal-title { font-family: var(--fh); font-size: 17px; font-weight: 700; margin-bottom: 3px; }
+.meal-desc  { font-size: 12px; color: var(--mu2); line-height: 1.4; }
+.meal-cals  { font-size: 12px; color: var(--grn); margin-top: 5px; font-weight: 600; }
+.supp { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.supp:last-child { border-bottom: none; }
+.supp-name { font-size: 12px; font-weight: 600; color: var(--acc); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.supp-desc { font-size: 13px; color: var(--mu2); line-height: 1.4; }
+
+/* ── PROGRESS ── */
+.w-input {
+  flex: 1; background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px; color: var(--txt);
+  font-family: var(--fh); font-size: 28px; font-weight: 700;
+  text-align: center; outline: none;
+  /* FIX: -webkit-appearance:none needed on iOS to remove system styling */
+  -webkit-appearance: none; appearance: none;
+}
+.w-input:focus { border-color: var(--acc); }
+.log-btn { padding: 14px 20px; background: var(--acc); border-radius: 12px; border: none; color: white; font-family: var(--fh); font-size: 17px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.chart-wrap { margin: 0 16px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+.log-entry { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.log-entry:last-child { border-bottom: none; }
+.lw { font-family: var(--fh); font-size: 22px; font-weight: 700; }
+.ld-down { font-size: 12px; font-weight: 600; color: var(--grn); }
+.ld-up   { font-size: 12px; font-weight: 600; color: var(--red); }
+.del-e { font-size: 18px; color: var(--mu); padding: 6px 10px; cursor: pointer; line-height: 1; }
+
+/* ── WEEK BANNER ── */
+.wk-banner { margin: 0 16px 12px; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+.wk-num { font-family: var(--fh); font-size: 44px; font-weight: 800; color: var(--pur); line-height: 1; }
+.wk-info .wi-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--mu); margin-bottom: 2px; }
+.wk-info .wi-ph  { font-family: var(--fh); font-size: 16px; font-weight: 700; }
+.wk-info .wi-ds  { font-size: 12px; color: var(--mu2); margin-top: 2px; line-height: 1.4; }
+
+/* ── INSTALL BANNER ── */
+#install-banner {
+  /* FIX: start hidden — JS shows it only when needed */
   display: none;
+  position: fixed;
+  top: calc(var(--st) + 8px);
+  left: 16px; right: 16px;
+  background: var(--acc); border-radius: 14px;
+  padding: 12px 16px; z-index: 300;
+  align-items: center; gap: 12px;
 }
-.msg.error { background: rgba(239,68,68,0.15); color: #ef4444; display: block; }
-.msg.success { background: rgba(34,197,94,0.15); color: #22c55e; display: block; }
-.msg.info { background: rgba(59,130,246,0.15); color: #3b82f6; display: block; }
-.toggle {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 13px;
-  color: #6b6b8a;
-}
-.toggle span {
-  color: #3b82f6;
-  cursor: pointer;
-  font-weight: 600;
-}
-.loading {
-  display: inline-block;
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  vertical-align: middle;
-  margin-right: 6px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+#install-banner .ib-txt { flex: 1; font-size: 13px; line-height: 1.4; color: white; }
+#install-banner .ib-txt strong { display: block; font-size: 14px; font-weight: 700; }
+#install-banner .ib-btn { background: white; color: var(--acc); border: none; border-radius: 8px; padding: 7px 14px; font-weight: 700; font-size: 13px; cursor: pointer; }
+#install-banner .ib-x { font-size: 20px; color: rgba(255,255,255,0.7); cursor: pointer; padding: 4px 8px; line-height: 1; }
+
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="logo">FITTRACK PRO</div>
-  <div class="tagline">Your 20-week transformation · 112kg → 93kg</div>
 
-  <!-- LOGIN FORM -->
-  <div class="card" id="login-card">
-    <h2>Welcome back</h2>
-    <p>Sign in to access your training plan</p>
-    <div class="input-group">
-      <label>Email</label>
-      <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
-    </div>
-    <div class="input-group">
-      <label>Password</label>
-      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="btn-primary" onclick="login()">Sign In</button>
-    <div class="msg" id="login-msg"></div>
-    <div class="toggle">Don't have an account? <span onclick="showSignup()">Sign Up</span></div>
+<!-- ══ INSTALL BANNER ══ -->
+<div id="install-banner">
+  <div class="ib-txt">
+    <strong>Add to Home Screen</strong>
+    Tap Share → "Add to Home Screen"
   </div>
-
-  <!-- SIGNUP FORM -->
-  <div class="card" id="signup-card" style="display:none">
-    <h2>Create account</h2>
-    <p>Start your transformation today</p>
-    <div class="input-group">
-      <label>Email</label>
-      <input type="email" id="signup-email" placeholder="your@email.com" autocomplete="email">
-    </div>
-    <div class="input-group">
-      <label>Password</label>
-      <input type="password" id="signup-password" placeholder="Min 6 characters" autocomplete="new-password">
-    </div>
-    <button class="btn-primary" onclick="signup()">Create Account</button>
-    <div class="msg" id="signup-msg"></div>
-    <div class="toggle">Already have an account? <span onclick="showLogin()">Sign In</span></div>
-  </div>
+  <button class="ib-btn" id="ib-ok">Got it</button>
+  <span class="ib-x" id="ib-close">✕</span>
 </div>
 
+<!-- ══ MAIN APP ══ -->
+<div id="app">
+
+  <!-- TODAY -->
+  <div class="page active" id="pg-today">
+    <div class="top-header">
+      <h1 class="c-acc">TODAY</h1>
+      <div class="sub" id="today-date">Loading...</div>
+    </div>
+    <div id="today-body"></div>
+  </div>
+
+  <!-- PROGRAM -->
+  <div class="page" id="pg-program">
+    <div class="top-header">
+      <h1>PROGRAM</h1>
+      <div class="sub">20-week plan · tap any day</div>
+    </div>
+    <div class="day-scroll" id="day-scroll"></div>
+    <div id="prog-body"></div>
+  </div>
+
+  <!-- NUTRITION -->
+  <div class="page" id="pg-nutrition">
+    <div class="top-header">
+      <h1 class="c-amb">NUTRITION</h1>
+      <div class="sub">Daily targets · meal plan · supplements</div>
+    </div>
+
+    <div class="macro-grid">
+      <div class="mc">
+        <div class="mc-lbl">Daily Calories</div>
+        <div class="mc-val" style="color:var(--amb)">2,500</div>
+        <div class="mc-sub">kcal target</div>
+        <div class="pw" style="height:6px;margin-top:10px;"><div class="pf pf-amber" style="height:6px;width:75%"></div></div>
+      </div>
+      <div class="mc">
+        <div class="mc-lbl">Protein</div>
+        <div class="mc-val" style="color:var(--acc)">190<span style="font-size:16px">g</span></div>
+        <div class="mc-sub">1.7g / kg bodyweight</div>
+        <div class="pw" style="height:6px;margin-top:10px;"><div class="pf pf-blue" style="height:6px;width:68%"></div></div>
+      </div>
+      <div class="mc">
+        <div class="mc-lbl">Carbohydrates</div>
+        <div class="mc-val" style="color:var(--grn)">240<span style="font-size:16px">g</span></div>
+        <div class="mc-sub">Focus around workouts</div>
+      </div>
+      <div class="mc">
+        <div class="mc-lbl">Fats</div>
+        <div class="mc-val" style="color:var(--pur)">72<span style="font-size:16px">g</span></div>
+        <div class="mc-sub">Healthy sources</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="mc-lbl" style="margin-bottom:6px">HYDRATION TARGET</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px">
+        <span style="font-family:var(--fh);font-size:36px;font-weight:800;color:var(--acc)">4+</span>
+        <span style="color:var(--mu2);font-size:14px">litres daily · more in Dubai heat</span>
+      </div>
+      <div class="pw" style="height:8px"><div class="pf pf-blue" style="height:8px;width:60%"></div></div>
+    </div>
+
+    <div class="sec-title">Meal Plan</div>
+    <div class="meal"><div class="meal-time">Meal 1 · Breakfast 7–8am</div><div class="meal-title">Power Breakfast</div><div class="meal-desc">4 scrambled eggs + 2 slices whole grain toast + 1 banana</div><div class="meal-cals">~550 kcal · 35g protein</div></div>
+    <div class="meal"><div class="meal-time">Meal 2 · Pre-Workout Snack</div><div class="meal-title">Pre-Training Fuel</div><div class="meal-desc">Greek yoghurt (200g) + handful of oats + honey · Eat 90 min before training</div><div class="meal-cals">~350 kcal · 20g protein</div></div>
+    <div class="meal"><div class="meal-time">Meal 3 · Post-Workout / Lunch</div><div class="meal-title">Recovery Meal</div><div class="meal-desc">200g grilled chicken or beef + 1 cup rice + large salad + olive oil · Within 45 min after training</div><div class="meal-cals">~700 kcal · 50g protein</div></div>
+    <div class="meal"><div class="meal-time">Meal 4 · Afternoon</div><div class="meal-title">Afternoon Boost</div><div class="meal-desc">100g cottage cheese or labneh + cucumber + 30g almonds</div><div class="meal-cals">~300 kcal · 20g protein</div></div>
+    <div class="meal"><div class="meal-time">Meal 5 · Dinner</div><div class="meal-title">Evening Rebuild</div><div class="meal-desc">200g salmon or lean beef + roasted vegetables + 1 medium sweet potato</div><div class="meal-cals">~650 kcal · 45g protein</div></div>
+    <div class="meal"><div class="meal-time">Meal 6 · Optional Evening</div><div class="meal-title">Casein / Protein</div><div class="meal-desc">1 scoop whey shake or 200g low-fat yoghurt (if still hungry)</div><div class="meal-cals">~200 kcal · 25g protein</div></div>
+
+    <div class="sec-title" style="margin-top:8px">Supplements</div>
+    <div class="card">
+      <div class="supp"><div class="supp-name">Creatine Monohydrate</div><div class="supp-desc">5g daily, any time. Most studied supplement for strength and body composition.</div></div>
+      <div class="supp"><div class="supp-name">Whey Protein</div><div class="supp-desc">1–2 scoops if struggling to hit protein target from food alone.</div></div>
+      <div class="supp"><div class="supp-name">Vitamin D3 + K2</div><div class="supp-desc">2,000–4,000 IU daily. Important in Dubai due to indoor lifestyle and high SPF use.</div></div>
+      <div class="supp"><div class="supp-name">Magnesium Glycinate</div><div class="supp-desc">300–400mg before bed. Sleep quality and muscle recovery.</div></div>
+      <div class="supp"><div class="supp-name">Omega-3 Fish Oil</div><div class="supp-desc">2–3g EPA/DHA daily. Anti-inflammatory, joint health.</div></div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="page" id="pg-progress">
+    <div class="top-header">
+      <h1 class="c-grn">PROGRESS</h1>
+      <div class="sub">Track your transformation</div>
+    </div>
+
+    <div class="card-row">
+      <div class="card"><div class="card-label">Start</div><div class="card-val" style="color:var(--mu2)">112</div><div class="card-unit">kg</div></div>
+      <div class="card"><div class="card-label">Current</div><div class="card-val c-grn" id="cur-w">112</div><div class="card-unit">kg</div></div>
+      <div class="card"><div class="card-label">Target</div><div class="card-val" style="color:var(--acc)">93</div><div class="card-unit">kg</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:13px;color:var(--mu2)">Journey to goal</div>
+        <div style="font-size:13px;font-weight:600" id="prog-pct">0%</div>
+      </div>
+      <div class="pw" style="height:10px"><div class="pf pf-green" id="prog-bar" style="height:10px;width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--mu)">
+        <span>112 kg start</span><span id="lost-lbl">0 kg lost</span><span>93 kg goal</span>
+      </div>
+    </div>
+
+    <div class="wk-banner">
+      <div class="wk-num" id="wk-num">1</div>
+      <div class="wk-info">
+        <div class="wi-lbl">Current Week</div>
+        <div class="wi-ph" id="wk-ph">Phase 1 — Foundation</div>
+        <div class="wi-ds" id="wk-ds">Build movement patterns and work capacity.</div>
+      </div>
+    </div>
+
+    <div class="sec-title">Log Weight</div>
+    <div style="margin:0 16px 12px">
+      <div style="font-size:13px;color:var(--mu2);margin-bottom:8px">Enter your weight in kg</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input class="w-input" type="number" id="w-inp" placeholder="e.g. 111.5" step="0.1" min="60" max="200" inputmode="decimal">
+        <button class="log-btn" onclick="logWeight()">Log</button>
+      </div>
+    </div>
+
+    <div class="sec-title">History <span id="entry-count"></span></div>
+    <div class="chart-wrap" id="chart-wrap" style="display:none">
+      <div style="position:relative;height:180px"><canvas id="wChart"></canvas></div>
+    </div>
+    <div style="margin:0 16px" id="log-list">
+      <div style="padding:20px 0;text-align:center;color:var(--mu);font-size:14px">No entries yet — log your first weight above!</div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav id="nav">
+  <div class="nb active" id="nb-today" onclick="goPage('today')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="nb-lbl">TODAY</span>
+  </div>
+  <div class="nb" id="nb-program" onclick="goPage('program')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span class="nb-lbl">PROGRAM</span>
+  </div>
+  <div class="nb" id="nb-nutrition" onclick="goPage('nutrition')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+    <span class="nb-lbl">NUTRITION</span>
+  </div>
+  <div class="nb" id="nb-progress" onclick="goPage('progress')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span class="nb-lbl">PROGRESS</span>
+  </div>
+</nav>
+
+<!-- ══ REST TIMER ══ -->
+<div id="timer-ov">
+  <div class="t-msg" id="t-msg">Rest period</div>
+  <div class="t-circle">
+    <svg width="190" height="190" viewBox="0 0 190 190">
+      <circle class="bg"  cx="95" cy="95" r="87"/>
+      <circle class="arc" cx="95" cy="95" r="87" id="t-arc"/>
+    </svg>
+    <div class="t-num" id="t-num">60</div>
+    <div class="t-lbl">seconds rest</div>
+  </div>
+  <button class="t-btn" onclick="skipTimer()">Done Resting</button>
+  <div class="t-skip" onclick="skipTimer()">Skip rest</div>
+</div>
+
+<!-- ══ COMPLETE ══ -->
+<div id="done-ov">
+  <div class="done-emoji">🔥</div>
+  <div class="done-title">WORKOUT<br>COMPLETE!</div>
+  <div class="done-sub" id="done-sub">You crushed it. Every session brings you closer to 93 kg.</div>
+  <div class="done-stats">
+    <div class="done-stat"><div class="dsv" id="done-ex">0</div><div class="dsl">Exercises</div></div>
+    <div class="done-stat"><div class="dsv" id="done-cal">0</div><div class="dsl">kcal est.</div></div>
+  </div>
+  <button class="done-btn" onclick="closeDone()">Keep Going 💪</button>
+</div>
+
+
 <script>
-// ─── PASTE YOUR SUPABASE CREDENTIALS HERE ───────────────────────
-const SUPABASE_URL = "https://hcgdvkztosxlpzyoabmc.supabase.co";
-const SUPABASE_ANON_KEY = "PASTE_YOUR_REAL_ANON_KEY_HERE"; // eyJ... long key from Supabase dashboard
-// ────────────────────────────────────────────────────────────────
 
-let sb;
-
-window.onload = () => {
-  try {
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    checkSession();
-  } catch(e) {
-    showMsg('login-msg', 'error', 'Setup error: ' + e.message);
-  }
+// ─────────────────────────────────────────────
+// WORKOUT DATA
+// ─────────────────────────────────────────────
+const WD = {
+  0: {
+    title:'Push Day', focus:'Chest · Shoulders · Triceps',
+    dur:'75 min', cal:'420–520',
+    sections:[
+      {name:'Warm-Up', col:'#f59e0b', ph:'warmup', exs:[
+        {n:'Treadmill / Brisk Walk',          d:'5 min · HR 120–130 bpm',                                  tip:'Talk test: you should be able to speak short sentences.',           s:'5 min',    r:0},
+        {n:'Arm Circles + Shoulder Rolls',    d:'20 reps each direction',                                  tip:'Slow and full range of motion in both directions.',                s:'2 × 20',   r:0},
+        {n:'Band Pull-Aparts',                d:'Opens chest, activates rear delts',                       tip:'Squeeze shoulder blades together at end of each rep.',             s:'2 × 15',   r:30},
+        {n:'Push-Up Progression',             d:'Elevated to flat — gradually loads chest',                tip:'Hands on bench if flat push-ups are hard. Just progress.',         s:'2 × 10',   r:30},
+      ]},
+      {name:'Main Strength', col:'#3b82f6', ph:'main', exs:[
+        {n:'Bench Press',                     d:'Barbell or dumbbell · primary chest compound',            tip:'Control descent 2–3 sec. Start lighter than ego wants. 12 clean reps first.', s:'4 × 8–12', r:90},
+        {n:'Incline Dumbbell Press',          d:'Upper chest + anterior delt',                             tip:'Keep elbows at 45°, not flared. Focus on the stretch at bottom.',  s:'3 × 10–12',r:75},
+        {n:'Seated Shoulder Press',           d:'Dumbbell · primary shoulder compound',                   tip:"Don't lock out at top. Keep tension on the delt throughout.",      s:'3 × 10–12',r:75},
+        {n:'Cable Lateral Raises',            d:'Side delt isolation · width builder',                    tip:'Light weight, strict form. Lead with elbow, not wrist.',           s:'3 × 15',   r:60},
+        {n:'Tricep Rope Pushdowns',           d:'Primary tricep isolation',                               tip:'Flare wrists at bottom for full contraction. No swinging.',        s:'3 × 12–15',r:60},
+        {n:'Overhead Tricep Extension',       d:'Long head · largest tricep portion',                     tip:'Keep elbows close to ears. Full stretch at top is where gains are.',s:'3 × 12',   r:60},
+      ]},
+      {name:'Cardio Finisher', col:'#22c55e', ph:'cardio', exs:[
+        {n:'Steady Cardio · Bike / Elliptical',d:'20 min · HR 130–150 bpm fat-burning zone',             tip:'Post-strength cardio burns fat more effectively — glycogen is depleted. Never skip.',s:'20 min',r:0},
+      ]},
+      {name:'Cool-Down & Stretch', col:'#8b5cf6', ph:'stretch', exs:[
+        {n:'Chest Doorway Stretch',           d:'30 sec each side',                                        tip:'Breathe deep into the stretch. Feel it across the pec.',           s:'2 × 30s',  r:0},
+        {n:'Overhead Tricep Stretch',         d:'Elbow behind head, gentle push down',                    tip:'Keep neck neutral. Do not crane forward.',                         s:'2 × 30s',  r:0},
+        {n:'Cross-Body Shoulder Stretch',     d:'Pull arm across chest · 30 sec each side',              tip:'Recovers the shoulder capsule and reduces soreness.',              s:'2 × 30s',  r:0},
+        {n:'Cool-Down Walk',                  d:'3–5 min · HR below 100 bpm',                             tip:'Never sit down immediately — blood pools. Walk it off.',           s:'3–5 min',  r:0},
+      ]},
+    ]
+  },
+  1: {
+    title:'Pull Day', focus:'Back · Biceps · Rear Delts',
+    dur:'75 min', cal:'400–500',
+    sections:[
+      {name:'Warm-Up', col:'#f59e0b', ph:'warmup', exs:[
+        {n:'Rowing Machine or Bike',          d:'5 min easy pace',                                         tip:'Rowing is ideal — pre-activates lats and rhomboids perfectly.',    s:'5 min',    r:0},
+        {n:'Cat-Cow + Thoracic Rotation',     d:'10 reps · spinal mobility',                              tip:'Slow and deliberate. Thoracic spine needs mobility for rows.',     s:'2 × 10',   r:0},
+        {n:'Band Face-Pulls',                 d:'External rotation warm-up',                               tip:'Pull to your nose, elbows high. This is injury prevention.',       s:'2 × 15',   r:30},
+      ]},
+      {name:'Main Strength', col:'#3b82f6', ph:'main', exs:[
+        {n:'Lat Pulldown (Wide Grip)',         d:"Best back-width builder if can't do pull-ups yet",       tip:"Pull to upper chest, lean back slightly. Lat tension first, then pull.",s:'4 × 10–12',r:90},
+        {n:'Seated Cable Row',                d:'Close grip · back thickness · V-taper',                  tip:'Drive elbows BACK, not down. Squeeze shoulder blades at end.',     s:'4 × 10–12',r:90},
+        {n:'Single-Arm Dumbbell Row',         d:'Unilateral · builds real symmetry',                      tip:'At 192cm you have a long-torso advantage. Full stretch and full contraction.', s:'3 × 12 ea',r:75},
+        {n:'Face Pulls (cable rope)',          d:'Rear delt + rotator cuff · injury prevention',          tip:'External rotate at top. This exercise saves shoulders long-term.',  s:'3 × 15',   r:60},
+        {n:'Barbell Bicep Curl',              d:'Or dumbbell · primary bicep builder',                    tip:"Full ROM. Don't let elbow drift forward — keep it pinned to side.", s:'3 × 10–12',r:60},
+        {n:'Hammer Curl',                     d:'Brachialis · arm thickness from all angles',             tip:'Neutral grip. 3 seconds down — controlled negative.',              s:'3 × 12',   r:60},
+      ]},
+      {name:'Cardio Finisher', col:'#22c55e', ph:'cardio', exs:[
+        {n:'Rowing Machine HIIT',             d:'10 × (40 sec hard / 20 sec easy)',                       tip:'Hard = breathless. Easy = actual recovery. Extremely effective fat burn.',s:'10 min',r:0},
+      ]},
+      {name:'Cool-Down & Stretch', col:'#8b5cf6', ph:'stretch', exs:[
+        {n:"Child's Pose Lat Stretch",        d:'Arms extended, sit back · 45 sec',                       tip:'Feel it in lats and thoracic spine. Breathe into it.',             s:'2 × 45s',  r:0},
+        {n:'Doorway Bicep Stretch',           d:'Arm on wall, rotate away · 30 sec each',                tip:'Keep palm flat on wall, not just fingers.',                        s:'2 × 30s',  r:0},
+        {n:'Upper Trap / Neck Stretch',       d:'Ear to shoulder · 30 sec each side',                    tip:'Never roll head backward — cervical spine does not benefit.',     s:'2 × 30s',  r:0},
+      ]},
+    ]
+  },
+  2: {
+    title:'Cardio & Core', focus:'Cardiovascular fitness · Core strength',
+    dur:'60 min', cal:'500–650',
+    sections:[
+      {name:'Warm-Up', col:'#f59e0b', ph:'warmup', exs:[
+        {n:'Easy Walk → Moderate Jog',        d:'5 min gradual ramp',                                     tip:'Talk test: if you cannot speak a sentence, slow down.',            s:'5 min',    r:0},
+      ]},
+      {name:'Cardio Block', col:'#22c55e', ph:'cardio', exs:[
+        {n:'Steady-State Cardio',             d:'Treadmill / bike / elliptical / outdoor · 35 min · HR 122–141 bpm', tip:'Primary fat-burning session. Never skip Wednesday. Dubai: before 8am or after 6pm.', s:'35 min', r:0},
+      ]},
+      {name:'Core Circuit × 3 Rounds', col:'#3b82f6', ph:'main', exs:[
+        {n:'Plank Hold',                      d:'Full body tension',                                       tip:"Don't let hips sag or pike. Line from ear → shoulder → hip → ankle.", s:'3 × 30–45s',r:30},
+        {n:'Dead Bug',                        d:'Anti-extension core · safe for lower back',              tip:'Press lower back INTO floor throughout. Slow and controlled.',      s:'3 × 10 ea', r:30},
+        {n:'Pallof Press',                    d:'Band or cable · anti-rotation core',                     tip:'Side-on to anchor. Press out, hold 2 sec, return. No twisting.',   s:'3 × 10 ea', r:30},
+        {n:'Hanging Knee Raises',             d:"Or lying leg raises · lower abs",                        tip:"No swinging. Captain's chair if hanging is too hard.",             s:'3 × 12–15', r:45},
+        {n:'Hollow Body Hold',                d:'Gymnastic core · total abdominal activation',            tip:'Lower back on floor. Arms by ears. Harder than it looks.',         s:'3 × 20–30s',r:30},
+      ]},
+      {name:'Full-Body Stretch', col:'#8b5cf6', ph:'stretch', exs:[
+        {n:'Hip Flexor Lunge Stretch',        d:'Front knee 90° · 45 sec each side',                     tip:'Squeeze glute on back leg — deepens the stretch significantly.',   s:'2 × 45s',  r:0},
+        {n:'Lying Glute Stretch (Fig 4)',     d:'Back flat, cross ankle over knee · 45 sec',             tip:'At your height, also doable seated in a chair.',                   s:'2 × 45s',  r:0},
+        {n:'Thoracic Foam Roll',              d:'Spine over roller · mid/upper back',                    tip:'Essential for posture. Pause on tight spots 5–10 sec.',            s:'90 sec',   r:0},
+        {n:'Quad Stretch',                    d:'Standing, pull foot to glute · 30 sec each',            tip:'Use wall for balance. Keep knees together.',                       s:'2 × 30s',  r:0},
+      ]},
+    ]
+  },
+  3: {
+    title:'Leg Day', focus:'Quads · Hamstrings · Glutes · Calves',
+    dur:'80 min', cal:'550–700',
+    sections:[
+      {name:'Warm-Up — Never Skip', col:'#f59e0b', ph:'warmup', exs:[
+        {n:'Stationary Bike',                 d:'8 min easy · gets blood into quads and hamstrings',     tip:'Resistance 2–4. Just spinning the legs. Prevents knee injury at your weight.', s:'8 min', r:0},
+        {n:'Bodyweight Squats with Pause',    d:'10 reps · 3 sec pause at bottom',                       tip:'At 192cm squat depth can be challenging. Use heel wedge if needed.', s:'2 × 10', r:0},
+        {n:'Hip Circle Bands',                d:'Around knees · activates glutes',                        tip:'10 lateral steps each way. Looks silly but essential.',            s:'2 × 15',   r:0},
+        {n:'Leg Swings (forward + lateral)',  d:'Dynamic hip flexor + groin mobility',                   tip:'Hold wall for balance. Big swings, not small ones.',               s:'10 each',  r:0},
+      ]},
+      {name:'Main Strength', col:'#3b82f6', ph:'main', exs:[
+        {n:'Back Squat / Goblet Squat',       d:'King of all exercises · quads, glutes, core',           tip:'Start lighter than you think. Master depth first. Goblet squat teaches depth naturally.',s:'4 × 8–10',r:120},
+        {n:'Romanian Deadlift (RDL)',         d:'Hamstring and glute hinge',                             tip:'Hip hinge, not squat. Feel the stretch in hamstrings. Bar close to legs.',s:'4 × 10',r:90},
+        {n:'Leg Press',                       d:'Quad focus with safe load',                             tip:'Full ROM. Do not lock out knees. Feet shoulder-width on platform.', s:'3 × 12',   r:90},
+        {n:'Walking Lunges',                  d:'Bodyweight or dumbbells · unilateral',                  tip:'At 192cm, take long strides. Front knee stays behind toes.',        s:'3 × 10 ea',r:75},
+        {n:'Leg Curl',                        d:'Lying or seated · hamstring isolation',                 tip:'Hold contraction at peak. Slow negative. Full stretch at bottom.',  s:'3 × 12',   r:60},
+        {n:'Standing Calf Raise',             d:'Calves only respond to high reps + full ROM',           tip:'All the way up, all the way down. Hold 1 sec at top. 20+ reps minimum.', s:'4 × 20', r:45},
+      ]},
+      {name:'Leg Stretch', col:'#8b5cf6', ph:'stretch', exs:[
+        {n:'Standing Quad Stretch',           d:'Wall support · 45 sec each side',                       tip:'At 192cm use a bench or wall for better balance.',                 s:'2 × 45s',  r:0},
+        {n:'Lying Hamstring Stretch',         d:'Strap or towel · leg straight up · 45 sec each',       tip:'Do not force. Breathe and let the stretch deepen naturally.',       s:'2 × 45s',  r:0},
+        {n:'Pigeon Pose / Figure-4',          d:'Deep glute + hip rotator',                              tip:'Minimum 60 sec each side. This is where your body repairs.',       s:'2 × 60s',  r:0},
+        {n:'Calf Stretch on Step',            d:'Straight-knee AND bent-knee versions',                  tip:'30 sec straight, 30 sec bent. Both positions target different muscles.', s:'2 × 30s', r:0},
+      ]},
+    ]
+  },
+  4: {
+    title:'Full Body Power', focus:'Compound lifts · Functional conditioning',
+    dur:'70 min', cal:'500–600',
+    sections:[
+      {name:'Warm-Up', col:'#f59e0b', ph:'warmup', exs:[
+        {n:'Jump Rope or Jumping Jacks',      d:'4 min · activates entire body simultaneously',          tip:'If knees are sensitive, march in place with high knees instead.',  s:'4 min',    r:0},
+        {n:"World's Greatest Stretch",        d:'Lunge: elbow to floor, rotate arm to ceiling',          tip:'Single best warm-up for full-body sessions.',                      s:'2 × 5 ea', r:0},
+      ]},
+      {name:'Main Compound Block', col:'#3b82f6', ph:'main', exs:[
+        {n:'Deadlift (Trap Bar preferred)',   d:'Most complete strength exercise that exists',           tip:'Trap bar is ideal for your size. Hip hinge, proud chest, brace hard before pulling.',s:'4 × 6–8',r:120},
+        {n:'Weighted Dip or Push-Up',         d:'Chest + tricep compound · full push test',             tip:'Use assisted machine or rings if dips are hard. No ego.',          s:'3 × 8–10', r:90},
+        {n:'Pull-Up / Assisted / Pulldown',   d:'Upper body king · work toward unassisted',             tip:'Even 1–2 full pull-ups is excellent. Use band assistance. Long-term goal.',s:'3 × max',r:90},
+        {n:'Dumbbell Farmer Walk',            d:'Functional strength + grip + cardio · 30m',            tip:'Heavy dumbbells, stand tall, shoulders back. This is how strong men move.',s:'4 × 30m',r:60},
+      ]},
+      {name:'Conditioning × 3 Rounds', col:'#22c55e', ph:'cardio', exs:[
+        {n:'KB Swing + Box Step-Up + Bike Sprint',d:'20 swings → 10 step-ups each leg → 30s bike',    tip:'Full effort on each. This is your CrossFit element. Burns fat long after (EPOC). Rest 90s between rounds.',s:'3 rounds',r:90},
+      ]},
+      {name:'Cool-Down', col:'#8b5cf6', ph:'stretch', exs:[
+        {n:'Spinal Decompression Hang',       d:'Hang from pull-up bar · 20–30 sec',                    tip:'Decompresses spine after heavy loading. If painful, lie flat 2 min.',s:'3 × 20s',  r:0},
+        {n:'Full Body Foam Rolling',          d:'Calves, quads, IT band, upper back, lats',             tip:'Slow rolls. Pause on tight spots for 5–10 sec.',                   s:'5–7 min',  r:0},
+      ]},
+    ]
+  },
+  5:{ rest:true, type:'sat', title:'Active Recovery' },
+  6:{ rest:true, type:'sun', title:'Full Rest Day'   },
 };
 
-async function checkSession() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    goToApp();
-  }
+const DAY_ABB  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAY_FULL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_SUB  = ['Push Day','Pull Day','Cardio','Legs','Full Body','Recovery','Rest'];
+const PHASES   = [
+  {name:'Phase 1 — Foundation', desc:'Build movement patterns and work capacity.'},
+  {name:'Phase 2 — Hypertrophy', desc:'Increase volume and intensity. Primary muscle-building phase.'},
+  {name:'Phase 3 — Strength', desc:'Heavier loads, lower reps. CrossFit conditioning intensifies.'},
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let S = {
+  checked: {},       // { 'YYYY-MM-DD': { key: true } }
+  weightLog: [],     // [{ date, weight }]
+  startDate: null,
+  selDay: null,
+  timerInt: null,
+  timerTotal: 0,
+  timerLeft: 0,
+};
+
+function loadS() {
+  try {
+    const raw = localStorage.getItem('ftp_v3');
+    if (raw) Object.assign(S, JSON.parse(raw));
+  } catch(e){}
+  if (!S.startDate)  { S.startDate = todayKey(); saveS(); }
+  if (!S.checked)    S.checked    = {};
+  if (!S.weightLog)  S.weightLog  = [];
+  if (S.selDay == null) S.selDay  = todayDayIdx();
 }
 
-function showMsg(id, type, text) {
-  const el = document.getElementById(id);
-  el.className = 'msg ' + type;
-  el.textContent = text;
+function saveS() {
+  try { localStorage.setItem('ftp_v3', JSON.stringify(S)); } catch(e){}
 }
 
-function showSignup() {
-  document.getElementById('login-card').style.display = 'none';
-  document.getElementById('signup-card').style.display = 'block';
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function todayKey()    { return new Date().toISOString().split('T')[0]; }
+function todayDayIdx() {
+  const d = new Date().getDay(); // 0=Sun
+  return d === 0 ? 6 : d - 1;   // Mon=0 … Sun=6
+}
+function getWeek() {
+  if (!S.startDate) return 1;
+  const diff = (new Date() - new Date(S.startDate)) / 864e5;
+  return Math.min(20, Math.max(1, Math.floor(diff / 7) + 1));
+}
+function getPhase(w) {
+  return w <= 6 ? PHASES[0] : w <= 14 ? PHASES[1] : PHASES[2];
+}
+function fmtDate(d) {
+  return new Date(d + 'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+function exK(di, si, ei) { return `${di}-${si}-${ei}`; }
+
+// ─────────────────────────────────────────────
+// NAVIGATION  — FIX: no implicit event object
+// ─────────────────────────────────────────────
+function goPage(page) {
+  ['today','program','nutrition','progress'].forEach(p => {
+    document.getElementById('pg-' + p).classList.toggle('active', p === page);
+    document.getElementById('nb-' + p).classList.toggle('active',  p === page);
+  });
+  // Scroll to top on tab change
+  document.getElementById('app').scrollTop = 0;
+  if (page === 'progress')  renderProgress();
+  if (page === 'program')   renderProgTabs();
 }
 
-function showLogin() {
-  document.getElementById('signup-card').style.display = 'none';
-  document.getElementById('login-card').style.display = 'block';
+// ─────────────────────────────────────────────
+// TODAY PAGE
+// ─────────────────────────────────────────────
+function renderToday() {
+  const now = new Date();
+  document.getElementById('today-date').textContent =
+    now.toLocaleDateString('en-GB',{weekday:'long', day:'numeric', month:'long'});
+
+  const di  = todayDayIdx();
+  const day = WD[di];
+  const el  = document.getElementById('today-body');
+
+  if (day.rest) { el.innerHTML = buildRestHTML(day); return; }
+
+  const tKey    = todayKey();
+  const checked = S.checked[tKey] || {};
+  let total = 0;
+  day.sections.forEach(s => total += s.exs.length);
+  const done = Object.keys(checked).length;
+  const pct  = Math.round((done / total) * 100);
+
+  let h = `
+    <div class="hero">
+      <div class="h-tag">${DAY_FULL[di]} · Week ${getWeek()}</div>
+      <h2>${day.title}</h2>
+      <div class="h-foc">${day.focus}</div>
+      <div class="hero-stats">
+        <div class="h-stat"><strong>${day.dur}</strong> duration</div>
+        <div class="h-stat"><strong>${day.cal} kcal</strong> est. burn</div>
+      </div>
+      <div class="h-prog">
+        <div class="h-prog-row"><span id="done-label">${done} of ${total} exercises</span><strong id="done-pct">${pct}%</strong></div>
+        <div class="pw" style="height:8px"><div class="pf pf-green" id="today-bar" style="height:8px;width:${pct}%"></div></div>
+      </div>
+    </div>`;
+
+  day.sections.forEach((sec, si) => {
+    h += `<div class="ph-hdr"><div class="ph-dot" style="background:${sec.col}"></div><div class="ph-name">${sec.name}</div><div class="ph-line"></div></div><div class="ex-list">`;
+    sec.exs.forEach((ex, ei) => {
+      const k    = exK(di, si, ei);
+      const done = !!checked[k];
+      h += `<div class="ex-item${done?' done':''}" id="ex-${k}" onclick="toggleEx(${di},${si},${ei},${ex.r})">
+        <div class="ex-chk">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="ex-body">
+          <div class="ex-name">${ex.n}</div>
+          <div class="ex-detail">${ex.d}</div>
+          <div class="ex-tip">${ex.tip}</div>
+          <div class="ex-tags">
+            <span class="tag t-sets">${ex.s}</span>
+            ${ex.r ? `<span class="tag t-rest">Rest ${ex.r}s</span>` : ''}
+            <span class="tag ${done?'t-done-yes':'t-done-no'}">${done?'✓ DONE':'TAP TO MARK DONE'}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+  });
+
+  el.innerHTML = h;
 }
 
-async function login() {
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  if (!email || !password) {
-    showMsg('login-msg', 'error', 'Please enter email and password');
-    return;
-  }
-  showMsg('login-msg', 'info', 'Signing in...');
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) {
-    showMsg('login-msg', 'error', error.message);
+function buildRestHTML(day) {
+  if (day.type === 'sat') return `
+    <div class="rest-hero" style="background:#0a1a0d;border-color:rgba(34,197,94,0.2);margin:0 16px 14px">
+      <div class="h-tag" style="color:var(--grn)">Saturday · Active Recovery</div>
+      <h2 style="color:var(--grn);font-family:var(--fh);font-size:30px;font-weight:800;line-height:1">Active Recovery</h2>
+      <div class="h-foc">Movement · Mobility · Mental reset</div>
+    </div>
+    <div class="rest-card">
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--grn)">Option A</div><div class="ri-txt">30–40 min casual walk. Beach, park, or neighbourhood. Dubai: evening after 6pm in summer.</div></div>
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--grn)">Option B</div><div class="ri-txt">20 min gentle swimming — easy on joints, great circulation.</div></div>
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--grn)">Option C</div><div class="ri-txt">20–30 min yoga or mobility flow. YouTube: "Yoga with Adriene athletes".</div></div>
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--red)">Avoid</div><div class="ri-txt">Heavy lifting or intense cardio. Keep metabolism elevated without adding recovery debt.</div></div>
+    </div>`;
+  return `
+    <div class="rest-hero" style="background:#0d0a1f;border-color:rgba(139,92,246,0.2);margin:0 16px 14px">
+      <div class="h-tag" style="color:var(--pur)">Sunday · Full Rest</div>
+      <h2 style="color:var(--pur);font-family:var(--fh);font-size:30px;font-weight:800;line-height:1">Rest & Recover</h2>
+      <div class="h-foc">Sleep · Nutrition · Adaptation</div>
+    </div>
+    <div class="rest-card">
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--pur)">Rule</div><div class="ri-txt">Do NOT train. Do NOT feel guilty. This is when adaptation happens. Muscles grow during rest.</div></div>
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--pur)">Sleep</div><div class="ri-txt">7–9 hours. Growth hormone is released during deep sleep — literally free muscle gain.</div></div>
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--pur)">Nutrition</div><div class="ri-txt">Eat your full calorie target. Do not under-eat on rest days — muscles need fuel to rebuild.</div></div>
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--pur)">Hydration</div><div class="ri-txt">3–4 litres minimum. Add electrolytes if you trained hard this week.</div></div>
+      <div class="rest-item"><div class="ri-lbl" style="color:var(--pur)">Meal Prep</div><div class="ri-txt">Prepare food for the week ahead. Biggest single factor in hitting your nutrition goals.</div></div>
+    </div>`;
+}
+
+function toggleEx(di, si, ei, restSecs) {
+  const tKey = todayKey();
+  if (!S.checked[tKey]) S.checked[tKey] = {};
+  const k       = exK(di, si, ei);
+  const nowDone = !S.checked[tKey][k];
+
+  if (nowDone) S.checked[tKey][k] = true;
+  else delete S.checked[tKey][k];
+  saveS();
+
+  const el = document.getElementById('ex-' + k);
+  if (el) el.classList.toggle('done', nowDone);
+
+  if (nowDone && restSecs > 0) startTimer(restSecs, 'Rest between sets');
+
+  const day = WD[di];
+  let total = 0;
+  day.sections.forEach(s => total += s.exs.length);
+  const done = Object.keys(S.checked[tKey]).length;
+
+  if (nowDone && done >= total) {
+    setTimeout(() => showDone(day, total), 400);
   } else {
-    showMsg('login-msg', 'success', 'Login successful! Loading app...');
-    setTimeout(goToApp, 800);
+    const pct = Math.round((done / total) * 100);
+    const bar = document.getElementById('today-bar');
+    const lbl = document.getElementById('done-label');
+    const pct2= document.getElementById('done-pct');
+    if (bar)  bar.style.width   = pct + '%';
+    if (lbl)  lbl.textContent   = `${done} of ${total} exercises`;
+    if (pct2) pct2.textContent  = pct + '%';
   }
 }
 
-async function signup() {
-  const email = document.getElementById('signup-email').value.trim();
-  const password = document.getElementById('signup-password').value;
-  if (!email || !password) {
-    showMsg('signup-msg', 'error', 'Please enter email and password');
+// ─────────────────────────────────────────────
+// TIMER — FIX: correct circumference
+// ─────────────────────────────────────────────
+function startTimer(secs, msg) {
+  if (S.timerInt) clearInterval(S.timerInt);
+  S.timerTotal = secs;
+  S.timerLeft  = secs;
+  document.getElementById('t-msg').textContent = msg || 'Rest period';
+  document.getElementById('timer-ov').classList.add('show');
+  updateTimer();
+  S.timerInt = setInterval(() => {
+    S.timerLeft--;
+    updateTimer();
+    if (S.timerLeft <= 0) { clearInterval(S.timerInt); setTimeout(skipTimer, 800); }
+  }, 1000);
+}
+
+function updateTimer() {
+  document.getElementById('t-num').textContent = S.timerLeft;
+  const C = 547; // 2π×87 = 546.6 → 547
+  const offset = C * (1 - S.timerLeft / S.timerTotal);
+  document.getElementById('t-arc').style.strokeDashoffset = offset;
+}
+
+function skipTimer() {
+  if (S.timerInt) clearInterval(S.timerInt);
+  document.getElementById('timer-ov').classList.remove('show');
+}
+
+// ─────────────────────────────────────────────
+// WORKOUT COMPLETE
+// ─────────────────────────────────────────────
+function showDone(day, total) {
+  const parts = day.cal.split('–');
+  const mid   = Math.round((parseInt(parts[0]) + parseInt(parts[1])) / 2);
+  document.getElementById('done-ex').textContent  = total;
+  document.getElementById('done-cal').textContent = mid;
+  document.getElementById('done-ov').classList.add('show');
+}
+function closeDone() {
+  document.getElementById('done-ov').classList.remove('show');
+}
+
+// ─────────────────────────────────────────────
+// PROGRAM PAGE — FIX: no implicit event reference
+// ─────────────────────────────────────────────
+function renderProgTabs() {
+  const scroll = document.getElementById('day-scroll');
+  scroll.innerHTML = DAY_ABB.map((a, i) => `
+    <div class="day-pill${i===S.selDay?' active':''}${i>=5?' rest-day':''}" onclick="selProgDay(${i})">
+      <div class="da">${a}</div>
+      <div class="dn">${DAY_SUB[i].split(' ')[0]}</div>
+    </div>`).join('');
+  renderProgDay(S.selDay);
+}
+
+function selProgDay(idx) {
+  S.selDay = idx;
+  document.querySelectorAll('.day-pill').forEach((p, i) => p.classList.toggle('active', i === idx));
+  renderProgDay(idx);
+}
+
+function renderProgDay(di) {
+  const day = WD[di];
+  const el  = document.getElementById('prog-body');
+  if (day.rest) { el.innerHTML = buildRestHTML(day); return; }
+
+  let h = `
+    <div class="hero">
+      <div class="h-tag">${DAY_FULL[di]}</div>
+      <h2>${day.title}</h2>
+      <div class="h-foc">${day.focus}</div>
+      <div class="hero-stats">
+        <div class="h-stat"><strong>${day.dur}</strong></div>
+        <div class="h-stat"><strong>${day.cal} kcal</strong> est. burn</div>
+      </div>
+    </div>`;
+
+  day.sections.forEach(sec => {
+    h += `<div class="ph-hdr"><div class="ph-dot" style="background:${sec.col}"></div><div class="ph-name">${sec.name}</div><div class="ph-line"></div></div><div class="ex-list">`;
+    sec.exs.forEach(ex => {
+      const phTag =
+        sec.ph === 'warmup'  ? '<span class="tag t-warm">Warm-up</span>' :
+        sec.ph === 'cardio'  ? '<span class="tag t-crd">Cardio</span>'   :
+        sec.ph === 'stretch' ? '<span class="tag t-str">Stretch</span>'  : '';
+      h += `<div class="ex-item" style="cursor:default">
+        <div class="ex-body">
+          <div class="ex-name">${ex.n}</div>
+          <div class="ex-detail">${ex.d}</div>
+          <div class="ex-tip">${ex.tip}</div>
+          <div class="ex-tags">
+            <span class="tag t-sets">${ex.s}</span>
+            ${ex.r ? `<span class="tag t-rest">Rest ${ex.r}s</span>` : ''}
+            ${phTag}
+          </div>
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+  });
+
+  el.innerHTML = h;
+}
+
+// ─────────────────────────────────────────────
+// PROGRESS PAGE
+// ─────────────────────────────────────────────
+function logWeight() {
+  const inp = document.getElementById('w-inp');
+  const val = parseFloat(inp.value);
+  if (!val || val < 60 || val > 200) {
+    inp.style.borderColor = 'var(--red)';
+    setTimeout(() => inp.style.borderColor = 'var(--border)', 1500);
     return;
   }
-  if (password.length < 6) {
-    showMsg('signup-msg', 'error', 'Password must be at least 6 characters');
-    return;
-  }
-  showMsg('signup-msg', 'info', 'Creating account...');
-  const { error } = await sb.auth.signUp({ email, password });
-  if (error) {
-    showMsg('signup-msg', 'error', error.message);
+  S.weightLog = S.weightLog.filter(e => e.date !== todayKey());
+  S.weightLog.unshift({date: todayKey(), weight: val});
+  S.weightLog.sort((a,b) => b.date.localeCompare(a.date));
+  saveS();
+  inp.value = '';
+  inp.style.borderColor = 'var(--grn)';
+  setTimeout(() => inp.style.borderColor = 'var(--border)', 1500);
+  renderProgress();
+}
+
+function delLog(date) {
+  S.weightLog = S.weightLog.filter(e => e.date !== date);
+  saveS();
+  renderProgress();
+}
+
+
+function renderProgress() {
+  const log     = S.weightLog;
+  const current = log.length ? log[0].weight : 112;
+  const START   = 112, TARGET = 93;
+  const lost    = Math.max(0, START - current);
+  const pct     = Math.min(100, Math.round((lost / (START - TARGET)) * 100));
+
+  document.getElementById('cur-w').textContent      = current;
+  document.getElementById('prog-bar').style.width   = pct + '%';
+  document.getElementById('prog-pct').textContent   = pct + '%';
+  document.getElementById('lost-lbl').textContent   = lost.toFixed(1) + ' kg lost';
+
+  const w  = getWeek();
+  const ph = getPhase(w);
+  document.getElementById('wk-num').textContent  = w;
+  document.getElementById('wk-ph').textContent   = ph.name;
+  document.getElementById('wk-ds').textContent   = ph.desc;
+  document.getElementById('entry-count').textContent = log.length ? log.length + ' entries' : '';
+
+  // Chart
+  const cw = document.getElementById('chart-wrap');
+  if (log.length >= 2) {
+    cw.style.display = 'block';
+    const sorted  = [...log].sort((a,b) => a.date.localeCompare(b.date));
+    const labels  = sorted.map(e => fmtDate(e.date));
+    const weights = sorted.map(e => e.weight);
+    drawChart(labels, weights, TARGET, START);
   } else {
-    showMsg('signup-msg', 'success', 'Account created! Check your email to confirm, then sign in.');
+    cw.style.display = 'none';
+  }
+
+  // Log list
+  const listEl = document.getElementById('log-list');
+  if (!log.length) {
+    listEl.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--mu);font-size:14px">No entries yet — log your first weight above!</div>';
+    return;
+  }
+  listEl.innerHTML = log.map((e, i) => {
+    const prev = log[i+1];
+    let diffHtml = '';
+    if (prev) {
+      const d   = e.weight - prev.weight;
+      const cls = d <= 0 ? 'ld-down' : 'ld-up';
+      diffHtml  = `<span class="${cls}">${d > 0 ? '+' : ''}${d.toFixed(1)} kg</span>`;
+    }
+    return `<div class="log-entry">
+      <div>
+        <div style="font-size:13px;color:var(--mu2)">${fmtDate(e.date)}</div>
+        ${diffHtml}
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="lw">${e.weight} <span style="font-size:13px;color:var(--mu2)">kg</span></span>
+        <span class="del-e" onclick="delLog('${e.date}')">✕</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// INSTALL BANNER — FIX: proper show/hide, no double listeners
+// ─────────────────────────────────────────────
+function initInstallBanner() {
+  const isIOS       = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone= window.navigator.standalone === true;
+  const dismissed   = localStorage.getItem('ib_dismissed');
+  const banner      = document.getElementById('install-banner');
+  if (isIOS && !isStandalone && !dismissed) {
+    banner.style.display = 'flex';
+  }
+  document.getElementById('ib-ok').onclick = () => {
+    banner.style.display = 'none';
+    localStorage.setItem('ib_dismissed', '1');
+  };
+  document.getElementById('ib-close').onclick = () => {
+    banner.style.display = 'none';
+    localStorage.setItem('ib_dismissed', '1');
+  };
+}
+
+
+// ─────────────────────────────────────────────
+// INLINE CHART — no external library needed
+// ─────────────────────────────────────────────
+function drawChart(labels, weights, target, yMax) {
+  const canvas = document.getElementById('wChart');
+  const dpr    = window.devicePixelRatio || 1;
+  const W      = canvas.parentElement.clientWidth - 32; // account for padding
+  const H      = 180;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const PAD = { top:10, right:16, bottom:36, left:40 };
+  const cW  = W - PAD.left - PAD.right;
+  const cH  = H - PAD.top  - PAD.bottom;
+
+  const yMin = target - 3;
+  const yRange = yMax + 2 - yMin;
+
+  function xPos(i)   { return PAD.left + (i / (weights.length - 1 || 1)) * cW; }
+  function yPos(val) { return PAD.top  + (1 - (val - yMin) / yRange) * cH; }
+
+  // Grid lines + y labels
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth   = 1;
+  ctx.fillStyle   = '#6b6b8a';
+  ctx.font        = `${10 * dpr / dpr}px -apple-system, Arial`;
+  ctx.textAlign   = 'right';
+  const ySteps = [yMin, target, Math.round((yMin + yMax + 2)/2), yMax + 2];
+  ySteps.forEach(v => {
+    const y = yPos(v);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + cW, y); ctx.stroke();
+    ctx.fillText(v + 'kg', PAD.left - 4, y + 4);
+  });
+
+  // Target dashed line
+  const ty = yPos(target);
+  ctx.save();
+  ctx.setLineDash([6, 4]);
+  ctx.strokeStyle = '#22c55e';
+  ctx.lineWidth   = 1.5;
+  ctx.globalAlpha = 0.6;
+  ctx.beginPath(); ctx.moveTo(PAD.left, ty); ctx.lineTo(PAD.left + cW, ty); ctx.stroke();
+  ctx.restore();
+  // Target label
+  ctx.fillStyle = '#22c55e';
+  ctx.font      = '10px -apple-system, Arial';
+  ctx.textAlign = 'left';
+  ctx.globalAlpha = 0.8;
+  ctx.fillText('Goal ' + target, PAD.left + cW - 52, ty - 4);
+  ctx.globalAlpha = 1;
+
+  if (weights.length < 2) return;
+
+  // Fill under line
+  ctx.beginPath();
+  ctx.moveTo(xPos(0), yPos(weights[0]));
+  for (let i = 1; i < weights.length; i++) {
+    const x0 = xPos(i-1), y0 = yPos(weights[i-1]);
+    const x1 = xPos(i),   y1 = yPos(weights[i]);
+    const cx = (x0 + x1) / 2;
+    ctx.bezierCurveTo(cx, y0, cx, y1, x1, y1);
+  }
+  ctx.lineTo(xPos(weights.length-1), PAD.top + cH);
+  ctx.lineTo(xPos(0), PAD.top + cH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + cH);
+  grad.addColorStop(0,   'rgba(59,130,246,0.25)');
+  grad.addColorStop(1,   'rgba(59,130,246,0.0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(xPos(0), yPos(weights[0]));
+  for (let i = 1; i < weights.length; i++) {
+    const x0 = xPos(i-1), y0 = yPos(weights[i-1]);
+    const x1 = xPos(i),   y1 = yPos(weights[i]);
+    const cx = (x0 + x1) / 2;
+    ctx.bezierCurveTo(cx, y0, cx, y1, x1, y1);
+  }
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth   = 2.5;
+  ctx.lineJoin    = 'round';
+  ctx.stroke();
+
+  // Dots
+  weights.forEach((w, i) => {
+    ctx.beginPath();
+    ctx.arc(xPos(i), yPos(w), 5, 0, Math.PI * 2);
+    ctx.fillStyle   = '#3b82f6';
+    ctx.fill();
+    ctx.strokeStyle = '#0a0a0f';
+    ctx.lineWidth   = 2;
+    ctx.stroke();
+  });
+
+  // X labels (max 4)
+  ctx.fillStyle = '#6b6b8a';
+  ctx.font      = '10px -apple-system, Arial';
+  ctx.textAlign = 'center';
+  const step = Math.max(1, Math.floor(labels.length / 4));
+  for (let i = 0; i < labels.length; i += step) {
+    const lbl = labels[i].split(' ').slice(0,2).join(' ');
+    ctx.fillText(lbl, xPos(i), H - 8);
   }
 }
 
-function goToApp() {
-  // Redirect to your main app page
-  window.location.href = 'app.html';
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+function init() {
+  loadS();
+  renderToday();
+  initInstallBanner();
 }
+
+init();
+
 </script>
 </body>
 </html>
