@@ -150,12 +150,12 @@ body {
 .done-ex-btn {
   margin-top: 10px;
   width: 100%;
-  padding: 10px 0;
+  padding: 9px 0;
   border-radius: 10px;
-  border: 2px solid var(--grn);
-  background: transparent;
+  border: none;
+  background: rgba(34,197,94,0.1);
   color: var(--grn);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.8px;
   cursor: pointer;
@@ -163,9 +163,9 @@ body {
 }
 .done-ex-btn:active { transform: scale(0.97); }
 .done-ex-btn-done {
-  background: var(--grn) !important;
-  color: white !important;
-  border-color: var(--grn) !important;
+  background: rgba(34,197,94,0.2) !important;
+  color: var(--grn) !important;
+  border: none !important;
 }
 
 /* ── PHASE HEADER ── */
@@ -336,6 +336,69 @@ body {
 .wk-info .wi-ds  { font-size: 12px; color: var(--mu2); margin-top: 2px; line-height: 1.4; }
 
 /* ── INSTALL BANNER ── */
+
+/* ── HOME HERO ── */
+.home-hero-wrap { background: linear-gradient(160deg,#0a0f1e 0%,#0d1a0d 100%); padding: calc(var(--st) + 16px) 20px 0; }
+.home-hero-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; }
+.home-greeting { font-size:13px; color:var(--mu2); margin-bottom:2px; }
+.home-name { font-family:var(--fh); font-size:32px; font-weight:800; color:var(--txt); line-height:1; }
+.home-streak { background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:8px 12px; text-align:center; }
+.home-streak .s-num { font-family:var(--fh); font-size:26px; font-weight:800; color:var(--amb); line-height:1; }
+.home-streak .s-lbl { font-size:10px; color:var(--mu2); margin-top:2px; }
+.home-goal-card { background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:18px; padding:18px; margin-bottom:16px; }
+.goal-title { font-size:11px; font-weight:600; color:var(--acc); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+.goal-weights { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.goal-w { text-align:center; }
+.goal-w .gw-num { font-family:var(--fh); font-size:38px; font-weight:800; line-height:1; }
+.goal-w .gw-lbl { font-size:11px; color:var(--mu2); margin-top:2px; }
+.goal-arrow { font-size:24px; color:var(--mu); flex:1; text-align:center; }
+.goal-bar-wrap { margin-bottom:6px; }
+.goal-bar-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--mu); margin-top:4px; }
+.home-stats-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+.hstat { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 10px; text-align:center; }
+.hstat-num { font-family:var(--fh); font-size:22px; font-weight:800; line-height:1; margin-bottom:3px; }
+.hstat-lbl { font-size:10px; color:var(--mu2); text-transform:uppercase; letter-spacing:0.5px; }
+.today-label { font-family:var(--fh); font-size:13px; font-weight:700; color:var(--mu2); text-transform:uppercase; letter-spacing:1px; padding:0 20px 8px; margin-top:4px; }
+
+/* ── PHASE OVERVIEW CARDS ── */
+.phase-overview-card { border-radius:16px; padding:16px; margin-bottom:12px; border:1px solid; transition: all 0.2s; }
+.phase-active  { background:rgba(255,255,255,0.04); border-color:rgba(59,130,246,0.25); }
+.phase-done    { background:rgba(34,197,94,0.04);   border-color:rgba(34,197,94,0.15);  opacity:0.8; }
+.phase-upcoming{ background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.06); opacity:0.6; }
+.po-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.po-phase-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:3px; }
+.po-phase-name { font-family:var(--fh); font-size:19px; font-weight:800; color:var(--txt); line-height:1; }
+.po-badge { font-size:10px; font-weight:700; padding:4px 10px; border-radius:8px; letter-spacing:0.5px; white-space:nowrap; }
+.po-desc { font-size:12px; color:var(--mu2); line-height:1.5; margin-bottom:10px; }
+.po-week-dots { display:flex; gap:5px; }
+.po-dot { flex:1; height:5px; border-radius:999px; background:var(--bg3); }
+.po-dot.done { background:var(--grn); }
+.po-dot.cur  { background:var(--acc); }
+
+/* ── WEEKLY SCHEDULE ── */
+.week-schedule-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:4px; }
+.wsday { background:var(--card); border:1px solid; border-radius:10px; padding:8px 4px; text-align:center; }
+.wsd-name { font-size:9px; font-weight:700; color:var(--mu); margin-bottom:4px; }
+.wsd-type { font-size:10px; font-weight:700; }
+
+/* ── WEEK TRACKER ── */
+.week-tracker-wrap { margin:0 16px 16px; }
+.wt-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.wt-title { font-family:var(--fh); font-size:20px; font-weight:800; }
+.wt-week-badge { background:var(--acc); color:white; border-radius:10px; padding:6px 14px; font-family:var(--fh); font-size:16px; font-weight:700; }
+.wt-phase-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:12px; }
+.wt-phase-name { font-family:var(--fh); font-size:18px; font-weight:800; margin-bottom:4px; }
+.wt-phase-desc { font-size:12px; color:var(--mu2); margin-bottom:10px; line-height:1.4; }
+.wt-dates { display:flex; justify-content:space-between; font-size:12px; color:var(--mu2); margin-bottom:10px; }
+.wt-dates span { color:var(--txt); font-weight:600; }
+.wt-weeks-grid { display:grid; grid-template-columns:repeat(10,1fr); gap:4px; margin-bottom:8px; }
+.wt-week-dot { height:8px; border-radius:999px; background:var(--bg3); }
+.wt-week-dot.done { background:var(--grn); }
+.wt-week-dot.current { background:var(--acc); }
+.wt-start-row { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+.wt-start-lbl { font-size:12px; color:var(--mu2); }
+.wt-reset-btn { font-size:12px; color:var(--acc); cursor:pointer; padding:4px 10px; border:1px solid rgba(59,130,246,0.3); border-radius:8px; background:transparent; }
+
 #install-banner {
   /* FIX: start hidden — JS shows it only when needed */
   display: none;
@@ -371,10 +434,7 @@ body {
 
   <!-- TODAY -->
   <div class="page active" id="pg-today">
-    <div class="top-header">
-      <h1 class="c-acc">TODAY</h1>
-      <div class="sub" id="today-date">Loading...</div>
-    </div>
+    <div id="home-hero"></div>
     <div id="today-body"></div>
   </div>
 
@@ -382,8 +442,9 @@ body {
   <div class="page" id="pg-program">
     <div class="top-header">
       <h1>PROGRAM</h1>
-      <div class="sub">20-week plan · tap any day</div>
+      <div class="sub">20-week transformation plan</div>
     </div>
+    <div id="week-tracker"></div>
     <div class="day-scroll" id="day-scroll"></div>
     <div id="prog-body"></div>
   </div>
@@ -506,7 +567,7 @@ body {
 <nav id="nav">
   <div class="nb active" id="nb-today" onclick="goPage('today')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span class="nb-lbl">TODAY</span>
+    <span class="nb-lbl">OVERVIEW</span>
   </div>
   <div class="nb" id="nb-program" onclick="goPage('program')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -732,10 +793,10 @@ function saveS() {
 // ─────────────────────────────────────────────
 function todayKey()    { return new Date().toISOString().split('T')[0]; }
 function todayDayIdx() {
-  // Program starts from Day 1 (Push Day) regardless of calendar day
-  // Sun=6, Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5
+  // Program starts TODAY (Sunday 22 March = Push Day = index 0)
+  // Sun=0(Push), Mon=1(Pull), Tue=2(Cardio), Wed=3(Legs), Thu=4(FullBody), Fri=5(Recovery), Sat=6(Rest)
   const d = new Date().getDay();
-  const map = {0:6, 1:0, 2:1, 3:2, 4:3, 5:4, 6:5};
+  const map = {0:0, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6};
   return map[d];
 }
 function getWeek() {
@@ -768,22 +829,166 @@ function goPage(page) {
 // ─────────────────────────────────────────────
 // TODAY PAGE
 // ─────────────────────────────────────────────
-function renderToday() {
+function renderHomeHero() {
   const now = new Date();
-  document.getElementById('today-date').textContent =
-    now.toLocaleDateString('en-GB',{weekday:'long', day:'numeric', month:'long'});
+  const dateStr = now.toLocaleDateString('en-GB',{weekday:'long', day:'numeric', month:'long'});
+  const week = getWeek();
+  const phase = getPhase(week);
+  const log = S.weightLog;
+  const current = log.length ? log[0].weight : 112;
+  const START = 112, TARGET = 93;
+  const lost = Math.max(0, START - current);
+  const pct = Math.min(100, Math.round((lost / (START - TARGET)) * 100));
+  const toGo = Math.max(0, current - TARGET).toFixed(1);
+  const weeksLeft = Math.max(0, 20 - week + 1);
 
-  // Always show a workout - if rest day, show next workout day
-  let di = todayDayIdx();
-  if (WD[di].rest) {
-    // Find next workout day
-    for (let i = 1; i <= 7; i++) {
-      const next = (di + i) % 7;
-      if (!WD[next].rest) { di = next; break; }
-    }
-  }
+  document.getElementById('home-hero').innerHTML = `
+    <div class="home-hero-wrap">
+
+      <!-- TOP: Greeting + Week Badge -->
+      <div class="home-hero-top">
+        <div>
+          <div class="home-greeting">${dateStr}</div>
+          <div class="home-name">WASSIM 💪</div>
+          <div style="font-size:13px;color:var(--mu2);margin-top:4px">${phase.name}</div>
+        </div>
+        <div class="home-streak">
+          <div class="s-num">W${week}</div>
+          <div class="s-lbl">of 20</div>
+        </div>
+      </div>
+
+      <!-- TRANSFORMATION GOAL CARD -->
+      <div class="home-goal-card">
+        <div class="goal-title">🎯 TRANSFORMATION GOAL</div>
+        <div class="goal-weights">
+          <div class="goal-w">
+            <div class="gw-num" style="color:var(--mu2)">${START}</div>
+            <div class="gw-lbl">Start kg</div>
+          </div>
+          <div class="goal-arrow">→</div>
+          <div class="goal-w">
+            <div class="gw-num" style="color:var(--grn)">${current}</div>
+            <div class="gw-lbl">Now kg</div>
+          </div>
+          <div class="goal-arrow">→</div>
+          <div class="goal-w">
+            <div class="gw-num" style="color:var(--acc)">${TARGET}</div>
+            <div class="gw-lbl">Target kg</div>
+          </div>
+        </div>
+        <div class="goal-bar-wrap">
+          <div class="pw" style="height:8px"><div class="pf pf-green" style="height:8px;width:${pct}%"></div></div>
+          <div class="goal-bar-labels"><span>${pct}% complete</span><span>${toGo} kg to go</span></div>
+        </div>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="home-stats-row">
+        <div class="hstat">
+          <div class="hstat-num" style="color:var(--amb)">${lost.toFixed(1)}</div>
+          <div class="hstat-lbl">kg lost</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num" style="color:var(--pur)">${weeksLeft}</div>
+          <div class="hstat-lbl">weeks left</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num" style="color:var(--grn)">${pct}%</div>
+          <div class="hstat-lbl">progress</div>
+        </div>
+      </div>
+
+      <!-- ELITE COACH MESSAGE -->
+      <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:14px;padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💬 Coach Message</div>
+        <div style="font-size:13px;color:var(--txt);line-height:1.6;">${getCoachMessage(week, pct)}</div>
+      </div>
+
+      <!-- 20-WEEK PROGRAM OVERVIEW -->
+      <div style="font-size:11px;font-weight:700;color:var(--mu2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Your 20-Week Plan</div>
+
+      <!-- PHASE 1 -->
+      <div class="phase-overview-card ${week<=6?'phase-active':'phase-done'}">
+        <div class="po-header">
+          <div>
+            <div class="po-phase-label" style="color:var(--amb)">PHASE 1 · WEEKS 1–6</div>
+            <div class="po-phase-name">Foundation & Fat Burn</div>
+          </div>
+          <div class="po-badge" style="background:rgba(245,158,11,0.15);color:var(--amb)">${week<=6?'CURRENT':week>6?'DONE':''}</div>
+        </div>
+        <div class="po-desc">Build movement patterns, establish habits, begin fat loss. Push/Pull/Legs split 5 days/week with cardio finishers. Expect 4–6 kg lost.</div>
+        <div class="po-week-dots">
+          ${[1,2,3,4,5,6].map(w=>`<div class="po-dot ${w<week?'done':w===week?'cur':''}" style="${w<week?'background:var(--amb)':w===week?'background:var(--acc)':''}"></div>`).join('')}
+        </div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="phase-overview-card ${week>6&&week<=14?'phase-active':week>14?'phase-done':'phase-upcoming'}">
+        <div class="po-header">
+          <div>
+            <div class="po-phase-label" style="color:var(--acc)">PHASE 2 · WEEKS 7–14</div>
+            <div class="po-phase-name">Hypertrophy & Shred</div>
+          </div>
+          <div class="po-badge" style="background:rgba(59,130,246,0.15);color:var(--acc)">${week>6&&week<=14?'CURRENT':week>14?'DONE':'UPCOMING'}</div>
+        </div>
+        <div class="po-desc">Increase training volume and intensity. This is the primary muscle-building phase. Progressive overload every 1–2 weeks. Expect 7–10 kg lost total.</div>
+        <div class="po-week-dots">
+          ${[7,8,9,10,11,12,13,14].map(w=>`<div class="po-dot ${w<week?'done':w===week?'cur':''}" style="${w<week?'background:var(--acc)':w===week?'background:var(--acc)':''}"></div>`).join('')}
+        </div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="phase-overview-card ${week>14?'phase-active':'phase-upcoming'}">
+        <div class="po-header">
+          <div>
+            <div class="po-phase-label" style="color:var(--grn)">PHASE 3 · WEEKS 15–20</div>
+            <div class="po-phase-name">Strength & Conditioning</div>
+          </div>
+          <div class="po-badge" style="background:rgba(34,197,94,0.15);color:var(--grn)">${week>14?'CURRENT':'UPCOMING'}</div>
+        </div>
+        <div class="po-desc">Heavier compound lifts, CrossFit conditioning circuits. Final fat loss push to reach 93 kg. Your body will be ready for this intensity. Expect 17–19 kg lost total.</div>
+        <div class="po-week-dots">
+          ${[15,16,17,18,19,20].map(w=>`<div class="po-dot ${w<week?'done':w===week?'cur':''}" style="${w<week?'background:var(--grn)':w===week?'background:var(--acc)':''}"></div>`).join('')}
+        </div>
+      </div>
+
+      <!-- WEEKLY SCHEDULE OVERVIEW -->
+      <div style="font-size:11px;font-weight:700;color:var(--mu2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px;">Weekly Schedule</div>
+      <div class="week-schedule-grid">
+        <div class="wsday" style="border-color:rgba(59,130,246,0.3)"><div class="wsd-name">SUN</div><div class="wsd-type" style="color:var(--acc)">Push</div></div>
+        <div class="wsday" style="border-color:rgba(59,130,246,0.3)"><div class="wsd-name">MON</div><div class="wsd-type" style="color:var(--acc)">Pull</div></div>
+        <div class="wsday" style="border-color:rgba(34,197,94,0.3)"><div class="wsd-name">TUE</div><div class="wsd-type" style="color:var(--grn)">Cardio</div></div>
+        <div class="wsday" style="border-color:rgba(59,130,246,0.3)"><div class="wsd-name">WED</div><div class="wsd-type" style="color:var(--acc)">Legs</div></div>
+        <div class="wsday" style="border-color:rgba(59,130,246,0.3)"><div class="wsd-name">THU</div><div class="wsd-type" style="color:var(--acc)">Full</div></div>
+        <div class="wsday" style="border-color:rgba(139,92,246,0.3)"><div class="wsd-name">FRI</div><div class="wsd-type" style="color:var(--pur)">Active</div></div>
+        <div class="wsday" style="border-color:rgba(255,255,255,0.08)"><div class="wsd-name">SAT</div><div class="wsd-type" style="color:var(--mu)">Rest</div></div>
+      </div>
+
+      <div style="height:8px"></div>
+    </div>
+  `;
+}
+
+function getCoachMessage(week, pct) {
+  if (week === 1) return "Week 1 starts TODAY. This is the moment everything changes. Your 20-week transformation to 93kg begins right now. Trust the process, show up every day, and I will get you there.";
+  if (week <= 3) return "You are in the foundation phase. Focus on perfect technique over heavy weight. Every rep you do now is building the base for the results you will see in weeks 8-12. Stay consistent.";
+  if (week <= 6) return "You are almost through Phase 1. Your body is adapting, your habits are forming. The scale should be moving. If not — check your nutrition. Training alone is not enough.";
+  if (week <= 10) return "Phase 2 is where real body composition changes happen. You should be seeing muscle definition starting to appear. Increase weights progressively — this is non-negotiable.";
+  if (week <= 14) return "You are more than halfway. The man you are becoming is visible in the mirror. Do not stop now. The hardest part is behind you. Push harder.";
+  if (week <= 18) return "Phase 3. This is elite territory. Very few people make it this far. You are not most people. The conditioning work now will transform your athleticism completely.";
+  return "Final weeks. You are close to 93kg. The body you wanted when you started is almost here. Give everything you have left. Finish strong.";
+}
+
+
+function renderToday() {
+  renderHomeHero();
+
+  const di  = todayDayIdx();
   const day = WD[di];
   const el  = document.getElementById('today-body');
+
+  if (day.rest) { el.innerHTML = buildRestHTML(day); return; }
 
   const tKey    = todayKey();
   const checked = S.checked[tKey] || {};
@@ -966,7 +1171,62 @@ function closeDone() {
 // ─────────────────────────────────────────────
 // PROGRAM PAGE — FIX: no implicit event reference
 // ─────────────────────────────────────────────
+function renderWeekTracker() {
+  const week = getWeek();
+  const phase = getPhase(week);
+  const start = S.startDate ? new Date(S.startDate) : new Date();
+  const endDate = new Date(start);
+  endDate.setDate(endDate.getDate() + 140); // 20 weeks
+
+  const fmtD = d => new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+  // Build 20 week dots
+  let dots = '';
+  for (let w = 1; w <= 20; w++) {
+    const cls = w < week ? 'done' : w === week ? 'current' : '';
+    dots += `<div class="wt-week-dot ${cls}" title="Week ${w}"></div>`;
+  }
+
+  const phaseColor = week <= 6 ? 'var(--amb)' : week <= 14 ? 'var(--acc)' : 'var(--grn)';
+
+  document.getElementById('week-tracker').innerHTML = `
+    <div class="week-tracker-wrap">
+      <div class="wt-header">
+        <div class="wt-title">Your Journey</div>
+        <div class="wt-week-badge">Week ${week}/20</div>
+      </div>
+      <div class="wt-phase-card">
+        <div class="wt-phase-name" style="color:${phaseColor}">${phase.name}</div>
+        <div class="wt-phase-desc">${phase.desc}</div>
+        <div class="wt-dates">
+          <div>Started: <span>${fmtD(S.startDate)}</span></div>
+          <div>Finish: <span>${fmtD(endDate)}</span></div>
+        </div>
+        <div class="wt-weeks-grid">${dots}</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px">
+          <span style="color:var(--grn)">■ Done</span>
+          <span style="color:var(--acc)">■ Current</span>
+          <span style="color:var(--bg3)">■ Upcoming</span>
+        </div>
+        <div class="wt-start-row">
+          <div class="wt-start-lbl">Program started: ${fmtD(S.startDate)}</div>
+          <button class="wt-reset-btn" onclick="resetProgram()">Reset Start Date</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function resetProgram() {
+  if (confirm('Reset program start date to today?')) {
+    S.startDate = todayKey();
+    saveS();
+    renderWeekTracker();
+  }
+}
+
 function renderProgTabs() {
+  renderWeekTracker();
   const scroll = document.getElementById('day-scroll');
   scroll.innerHTML = DAY_ABB.map((a, i) => `
     <div class="day-pill${i===S.selDay?' active':''}${i>=5?' rest-day':''}" onclick="selProgDay(${i})">
