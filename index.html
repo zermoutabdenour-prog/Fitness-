@@ -3,44 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>FitTrack Pro</title>
-
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    body{
-      background:#0b1220;
-      color:white;
-      font-family:Arial;
-      padding:30px;
-    }
-    input,button{
-      display:block;
-      margin:10px 0;
-      padding:10px;
-      width:300px;
-      border-radius:6px;
-      border:none;
-    }
-    button{
-      cursor:pointer;
-      background:#3b82f6;
-      color:white;
-      font-weight:bold;
-    }
-    #msg{
-      margin-top:20px;
-      color:#22c55e;
-    }
-  </style>
 </head>
+<body style="background:#0b1220;color:white;font-family:Arial;padding:30px;">
 
-<body>
+<h2>FitTrack Pro</h2>
 
-<h2>FitTrack Pro 🚀</h2>
-
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
 
 <button onclick="test()">TEST CONNECTION</button>
 <button onclick="signup()">SIGN UP</button>
@@ -49,68 +19,44 @@
 <p id="msg">Loading...</p>
 
 <script>
-const supabaseUrl = "https://hcgdvkztosxlpzoyabmc.supabase.co";
+const supabaseUrl = "https://hcgdvkztosxlpzyoabmc.supabase.co";
 const supabaseKey = "sb_publishable_E-OglMzuyvUeXsfCPUOBnQ_fGuO1dJP";
 
 let supabase;
 const msg = document.getElementById("msg");
 
-// INIT
 window.onload = () => {
-  if(!window.supabase){
-    msg.innerText = "❌ Supabase not loaded";
+  if (!window.supabase) {
+    msg.innerText = "Supabase library not loaded";
     return;
   }
   supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-  msg.innerText = "✅ Ready";
+  msg.innerText = "Ready";
 };
 
-// TEST CONNECTION
-async function test(){
-  try{
+async function test() {
+  try {
     const res = await fetch(supabaseUrl + "/auth/v1/settings", {
-      headers: {
-        apikey: supabaseKey
-      }
+      headers: { apikey: supabaseKey }
     });
-    msg.innerText = "✅ Connection OK: " + res.status;
-  }catch(e){
-    msg.innerText = "❌ Error: " + e.message;
+    msg.innerText = "Connection OK: " + res.status;
+  } catch (e) {
+    msg.innerText = "Failed: " + e.message;
   }
 }
 
-// SIGN UP
-async function signup(){
+async function signup() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
-  const { error } = await supabase.auth.signUp({
-    email,
-    password
-  });
-
-  if(error){
-    msg.innerText = "❌ " + error.message;
-  } else {
-    msg.innerText = "✅ Signup success (check email if enabled)";
-  }
+  const { error } = await supabase.auth.signUp({ email, password });
+  msg.innerText = error ? error.message : "Signup OK";
 }
 
-// LOGIN
-async function login(){
+async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if(error){
-    msg.innerText = "❌ " + error.message;
-  } else {
-    msg.innerText = "✅ LOGIN SUCCESS 🚀";
-  }
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  msg.innerText = error ? error.message : "Login OK";
 }
 </script>
 
